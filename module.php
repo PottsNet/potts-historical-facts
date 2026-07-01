@@ -26,12 +26,15 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
     use ModuleConfigTrait;
 
     private const REGION_COOKIE = 'potts_history_region';
+    private const COLLECTIONS_COOKIE = 'potts_history_collections';
     private const AGE_MARKER = '__POTTS_HISTORY_AGE__';
     private const DEFAULTS = [
-        'DEFAULT_REGION'       => 'en_AU',
-        'SHOW_GLOBAL_SELECTOR' => '1',
-        'SHOW_EVENT_AGES'      => '1',
-        'MAX_LIFESPAN'         => '120',
+        'DEFAULT_REGION'        => 'en_AU',
+        'DEFAULT_COLLECTIONS'   => 'en_AU',
+        'ENABLED_COLLECTIONS'   => '',
+        'SHOW_GLOBAL_SELECTOR'  => '1',
+        'SHOW_EVENT_AGES'       => '1',
+        'MAX_LIFESPAN'          => '120',
     ];
 
     public function title(): string
@@ -41,7 +44,7 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
 
     public function description(): string
     {
-        return 'Displays historical facts from CSV files using a visitor-selected region available from every page.';
+        return 'Displays historical facts from CSV files using visitor-selected historical fact collections available from every page.';
     }
 
     public function customModuleAuthorName(): string
@@ -51,7 +54,7 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
 
     public function customModuleVersion(): string
     {
-        return '1.1.0-beta.1';
+        return '1.1.0-beta.3';
     }
 
     public function customModuleLatestVersion(): string
@@ -91,7 +94,7 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
                 'module' => $this->name(),
                 'action' => 'Admin',
             ]),
-            'regions'    => $this->availableHistoryRegions(),
+            'collections' => $this->availableHistoryCollections(),
             'settings'   => $this->settings(),
             'saved'      => Validator::queryParams($request)->boolean('saved', false),
             'reset'      => Validator::queryParams($request)->boolean('reset', false),
@@ -119,18 +122,48 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
             ]));
         }
 
-        $region = isset($data['default_region']) && is_string($data['default_region'])
-            ? $this->normaliseHistoryCode($data['default_region'])
-            : self::DEFAULTS['DEFAULT_REGION'];
+        $available = $this->availableHistoryCollections();
+        $available_codes = array_keys($available);
 
-        if ($this->csvPathForHistoryCode($region) === null) {
-            $region = self::DEFAULTS['DEFAULT_REGION'];
+        $enabled_input = $data['enabled_collections'] ?? [];
+        $enabled = is_array($enabled_input)
+            ? $this->normaliseHistoryCodeList($enabled_input)
+            : $this->normaliseHistoryCodeList((string) $enabled_input);
+        $enabled = array_values(array_intersect($enabled, $available_codes));
+
+        // Avoid saving an unusable configuration. If everything was unticked,
+        // keep every bundled CSV collection available.
+        if ($enabled === []) {
+            $enabled = $available_codes;
+        }
+
+        $default_input = $data['default_collections'] ?? [];
+        $defaults = is_array($default_input)
+            ? $this->normaliseHistoryCodeList($default_input)
+            : $this->normaliseHistoryCodeList((string) $default_input);
+        $defaults = array_values(array_intersect($defaults, $enabled));
+
+        // Compatibility with the old single-select setting name.
+        if ($defaults === []) {
+            $region = isset($data['default_region']) && is_string($data['default_region'])
+                ? $this->normaliseHistoryCode($data['default_region'])
+                : self::DEFAULTS['DEFAULT_REGION'];
+
+            if (in_array($region, $enabled, true)) {
+                $defaults = [$region];
+            }
+        }
+
+        if ($defaults === [] && $enabled !== []) {
+            $defaults = [$enabled[0]];
         }
 
         $lifespan = isset($data['max_lifespan']) ? (int) $data['max_lifespan'] : (int) self::DEFAULTS['MAX_LIFESPAN'];
         $lifespan = max(80, min(150, $lifespan));
 
-        $this->setPreference('DEFAULT_REGION', $region);
+        $this->setPreference('ENABLED_COLLECTIONS', implode(',', $enabled));
+        $this->setPreference('DEFAULT_COLLECTIONS', implode(',', $defaults));
+        $this->setPreference('DEFAULT_REGION', $defaults[0] ?? self::DEFAULTS['DEFAULT_REGION']);
         $this->setPreference('MAX_LIFESPAN', (string) $lifespan);
         $this->setPreference('SHOW_GLOBAL_SELECTOR', isset($data['show_global_selector']) && (string) $data['show_global_selector'] === '1' ? '1' : '0');
         $this->setPreference('SHOW_EVENT_AGES', isset($data['show_event_ages']) && (string) $data['show_event_ages'] === '1' ? '1' : '0');
@@ -156,6 +189,8 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
     {
         return [
             'DEFAULT_REGION'       => $this->configuredDefaultHistoryRegion(),
+            'DEFAULT_COLLECTIONS'  => implode(',', $this->defaultHistoryCollections()),
+            'ENABLED_COLLECTIONS'  => implode(',', $this->enabledHistoryCollectionCodes()),
             'SHOW_GLOBAL_SELECTOR' => $this->showGlobalSelector() ? '1' : '0',
             'SHOW_EVENT_AGES'      => $this->showEventAges() ? '1' : '0',
             'MAX_LIFESPAN'         => (string) $this->maximumLifespan(),
@@ -181,21 +216,21 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
 
     public function bodyContent(): string
     {
-        $regions = $this->availableHistoryRegions();
-        $selected = $this->selectedHistoryRegionForDisplay();
-        $default_label = $this->defaultHistoryRegionLabel($regions);
+        $collections = $this->enabledHistoryCollections();
+        $selected = $this->selectedHistoryCollectionsForDisplay();
+        $default_label = $this->defaultHistoryCollectionsLabel($collections);
 
-        $options = [
-            ['code' => 'auto', 'label' => 'Site default (' . $default_label . ')'],
-        ];
+        $options = [];
 
-        foreach ($regions as $code => $label) {
+        foreach ($collections as $code => $label) {
             $options[] = ['code' => $code, 'label' => $label];
         }
 
         $options_json = json_encode($options, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
-        $selected_json = json_encode($selected, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
-        $cookie_json = json_encode(self::REGION_COOKIE, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+        $selected_json = json_encode($selected, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+        $default_label_json = json_encode($default_label, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+        $collection_cookie_json = json_encode(self::COLLECTIONS_COOKIE, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+        $legacy_cookie_json = json_encode(self::REGION_COOKIE, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
         $show_global_json = $this->showGlobalSelector() ? 'true' : 'false';
 
         $html = <<<'HTML'
@@ -238,13 +273,12 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
     top: calc(100% + .35rem);
     left: 50%;
     transform: translateX(-50%);
-    width: min(22rem, calc(100vw - 2rem));
-    max-height: min(28rem, 70vh);
+    width: min(24rem, calc(100vw - 2rem));
+    max-height: min(32rem, 76vh);
     overflow: auto;
     display: none;
-    padding: .45rem;
+    padding: .65rem;
     margin: 0;
-    list-style: none;
     background: #fffdf8;
     color: #18313b;
     border: 1px solid rgba(35, 48, 56, .18);
@@ -254,26 +288,54 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
 .potts-history-global.is-open .potts-history-global__menu {
     display: block;
 }
+.potts-history-global__intro {
+    margin: 0 0 .55rem;
+    color: #4b6470;
+    font-size: .875rem;
+}
 .potts-history-global__option {
-    display: block;
+    display: flex;
+    gap: .55rem;
+    align-items: flex-start;
     width: 100%;
     border: 0;
     border-radius: .5rem;
     background: transparent;
     color: inherit;
     text-align: left;
-    padding: .58rem .7rem;
+    padding: .38rem .45rem;
     cursor: pointer;
 }
 .potts-history-global__option:hover,
-.potts-history-global__option:focus-visible {
+.potts-history-global__option:focus-within {
     background: #eef3ea;
-    outline: 2px solid #185a71;
-    outline-offset: -2px;
 }
-.potts-history-global__option[aria-current="true"] {
-    background: #dfe8da;
+.potts-history-global__option input {
+    margin-top: .22rem;
+}
+.potts-history-global__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    justify-content: flex-end;
+    margin-top: .7rem;
+    padding-top: .7rem;
+    border-top: 1px solid rgba(35, 48, 56, .12);
+}
+.potts-history-global__action {
+    border: 1px solid rgba(35, 48, 56, .18);
+    border-radius: 999px;
+    background: #fff;
+    color: #18313b;
+    font: inherit;
     font-weight: 700;
+    padding: .35rem .75rem;
+    cursor: pointer;
+}
+.potts-history-global__action--primary {
+    background: #185a71;
+    color: #fff;
+    border-color: #185a71;
 }
 .potts-history-global--fallback {
     position: fixed;
@@ -312,7 +374,9 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
     const marker = '__POTTS_HISTORY_AGE__';
     const options = __POTTS_OPTIONS__;
     const selected = __POTTS_SELECTED__;
-    const cookieName = __POTTS_COOKIE__;
+    const defaultLabel = __POTTS_DEFAULT_LABEL__;
+    const collectionCookieName = __POTTS_COLLECTION_COOKIE__;
+    const legacyCookieName = __POTTS_LEGACY_COOKIE__;
     const enableGlobalSelector = __POTTS_SHOW_GLOBAL__;
 
     function replaceTextNode(node) {
@@ -358,18 +422,41 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
         nodes.forEach(replaceTextNode);
     }
 
-    function selectedLabel() {
-        const match = options.find(function (item) { return item.code === selected; });
-        return match ? match.label : 'Historical facts';
+    function selectedLabels() {
+        if (!selected || !Array.isArray(selected.codes) || selected.codes.length === 0 || selected.mode === 'auto') {
+            return ['Site default (' + defaultLabel + ')'];
+        }
+
+        const labels = selected.codes.map(function (code) {
+            const match = options.find(function (item) { return item.code === code; });
+            return match ? match.label : code;
+        });
+
+        return labels.length ? labels : ['Site default (' + defaultLabel + ')'];
     }
 
-    function saveRegion(code) {
-        const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+    function selectedLabel() {
+        const labels = selectedLabels();
 
-        if (code === 'auto') {
-            document.cookie = cookieName + '=; Max-Age=0; Path=/; SameSite=Lax' + secure;
+        if (labels.length === 1) {
+            return labels[0];
+        }
+
+        return labels[0] + ' +' + (labels.length - 1);
+    }
+
+    function saveCollections(codes) {
+        const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+        const validCodes = (codes || []).filter(function (code, index, array) {
+            return options.some(function (item) { return item.code === code; }) && array.indexOf(code) === index;
+        });
+
+        if (validCodes.length === 0) {
+            document.cookie = collectionCookieName + '=; Max-Age=0; Path=/; SameSite=Lax' + secure;
+            document.cookie = legacyCookieName + '=; Max-Age=0; Path=/; SameSite=Lax' + secure;
         } else {
-            document.cookie = cookieName + '=' + encodeURIComponent(code) + '; Max-Age=31536000; Path=/; SameSite=Lax' + secure;
+            document.cookie = collectionCookieName + '=' + encodeURIComponent(validCodes.join(',')) + '; Max-Age=31536000; Path=/; SameSite=Lax' + secure;
+            document.cookie = legacyCookieName + '=; Max-Age=0; Path=/; SameSite=Lax' + secure;
         }
 
         window.location.reload();
@@ -383,27 +470,63 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'potts-history-global__button';
-        button.setAttribute('aria-haspopup', 'menu');
+        button.setAttribute('aria-haspopup', 'dialog');
         button.setAttribute('aria-expanded', 'false');
         button.setAttribute('aria-controls', 'potts-history-global-menu');
-        button.textContent = 'History: ' + selectedLabel();
+        button.textContent = historyLabel() + ': ' + selectedLabel();
 
         const menu = document.createElement('div');
         menu.id = 'potts-history-global-menu';
         menu.className = 'potts-history-global__menu';
-        menu.setAttribute('role', 'menu');
+        menu.setAttribute('role', 'dialog');
+        menu.setAttribute('aria-label', historyLabel());
+
+        const intro = document.createElement('p');
+        intro.className = 'potts-history-global__intro';
+        intro.textContent = 'Choose one or more historical fact collections.';
+        menu.appendChild(intro);
+
+        const selectedCodes = selected && selected.mode !== 'auto' && Array.isArray(selected.codes) ? selected.codes : [];
+        const checkboxes = [];
 
         options.forEach(function (item) {
-            const option = document.createElement('button');
-            option.type = 'button';
-            option.className = 'potts-history-global__option';
-            option.setAttribute('role', 'menuitem');
-            option.tabIndex = -1;
-            option.setAttribute('aria-current', item.code === selected ? 'true' : 'false');
-            option.textContent = item.label;
-            option.addEventListener('click', function () { saveRegion(item.code); });
-            menu.appendChild(option);
+            const label = document.createElement('label');
+            label.className = 'potts-history-global__option';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.value = item.code;
+            checkbox.checked = selectedCodes.indexOf(item.code) !== -1;
+            checkboxes.push(checkbox);
+
+            const text = document.createElement('span');
+            text.textContent = item.label;
+
+            label.appendChild(checkbox);
+            label.appendChild(text);
+            menu.appendChild(label);
         });
+
+        const actions = document.createElement('div');
+        actions.className = 'potts-history-global__actions';
+
+        const reset = document.createElement('button');
+        reset.type = 'button';
+        reset.className = 'potts-history-global__action';
+        reset.textContent = 'Site default';
+        reset.addEventListener('click', function () { saveCollections([]); });
+
+        const apply = document.createElement('button');
+        apply.type = 'button';
+        apply.className = 'potts-history-global__action potts-history-global__action--primary';
+        apply.textContent = 'Apply';
+        apply.addEventListener('click', function () {
+            saveCollections(checkboxes.filter(function (checkbox) { return checkbox.checked; }).map(function (checkbox) { return checkbox.value; }));
+        });
+
+        actions.appendChild(reset);
+        actions.appendChild(apply);
+        menu.appendChild(actions);
 
         button.addEventListener('click', function (event) {
             event.preventDefault();
@@ -417,9 +540,8 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
             wrapper.classList.toggle('is-open', open);
             button.setAttribute('aria-expanded', open ? 'true' : 'false');
 
-            if (open) {
-                const current = menu.querySelector('[aria-current="true"]') || menu.querySelector('[role="menuitem"]');
-                if (current) current.focus();
+            if (open && checkboxes.length) {
+                checkboxes[0].focus();
             }
         });
 
@@ -428,32 +550,17 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
                 event.preventDefault();
                 wrapper.classList.add('is-open');
                 button.setAttribute('aria-expanded', 'true');
-                const current = menu.querySelector('[aria-current="true"]') || menu.querySelector('[role="menuitem"]');
-                if (current) current.focus();
+                if (checkboxes.length) checkboxes[0].focus();
             }
         });
 
         menu.addEventListener('keydown', function (event) {
-            const items = Array.from(menu.querySelectorAll('[role="menuitem"]'));
-            const index = items.indexOf(document.activeElement);
-            let next = index;
-
-            if (event.key === 'ArrowDown') next = (index + 1) % items.length;
-            else if (event.key === 'ArrowUp') next = (index - 1 + items.length) % items.length;
-            else if (event.key === 'Home') next = 0;
-            else if (event.key === 'End') next = items.length - 1;
-            else if (event.key === 'Escape') {
+            if (event.key === 'Escape') {
                 event.preventDefault();
                 wrapper.classList.remove('is-open');
                 button.setAttribute('aria-expanded', 'false');
                 button.focus();
-                return;
-            } else {
-                return;
             }
-
-            event.preventDefault();
-            if (items[next]) items[next].focus();
         });
 
         wrapper.appendChild(button);
@@ -465,18 +572,178 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
         return (element && element.textContent ? element.textContent : '').replace(/\s+/g, ' ').trim().toLowerCase();
     }
 
-    function findLanguageControl() {
-        const stable = document.querySelector('.wt-language-menu, [data-wt-menu="language"], [class*="language-menu"], [class*="wt-language"], #language-menu');
+    function pageLanguage() {
+        return ((document.documentElement && document.documentElement.lang) || navigator.language || 'en').toLowerCase();
+    }
 
-        if (stable) {
-            return stable;
+    function historyLabel() {
+        const language = pageLanguage();
+
+        if (language.startsWith('nl')) return 'Geschiedenis';
+        if (language.startsWith('de')) return 'Geschichte';
+        if (language.startsWith('fr')) return 'Histoire';
+        if (language.startsWith('es')) return 'Historia';
+        if (language.startsWith('it')) return 'Storia';
+        if (language.startsWith('pt')) return 'História';
+        if (language.startsWith('pl')) return 'Historia';
+
+        return 'History';
+    }
+
+    function identityOf(element) {
+        if (!element) {
+            return '';
         }
 
-        const candidates = Array.from(document.querySelectorAll('header a, header button, nav a, nav button, .wt-header a, .wt-header button'));
-        return candidates.find(function (element) {
-            const text = textOf(element);
-            return text === 'language' || text.startsWith('language ');
-        }) || null;
+        return [
+            element.id || '',
+            element.className || '',
+            element.getAttribute('aria-label') || '',
+            element.getAttribute('title') || '',
+            element.getAttribute('href') || '',
+            element.getAttribute('data-bs-target') || '',
+            element.getAttribute('data-bs-toggle') || ''
+        ].join(' ').toLowerCase();
+    }
+
+    function isLanguageControl(element) {
+        const text = textOf(element);
+        const identity = identityOf(element);
+        const words = [
+            'language',
+            'taal',
+            'sprache',
+            'langue',
+            'idioma',
+            'lingua',
+            'język',
+            'jezyk',
+            'språk',
+            'sprog',
+            'kieli',
+            'nyelv',
+            'jazyk',
+            'jazyky'
+        ];
+
+        if (words.some(function (word) {
+            return text === word || text.startsWith(word + ' ') || text.endsWith(' ' + word);
+        })) {
+            return true;
+        }
+
+        return /(?:^|[\s_\-\/])(language|locale|lang)(?:[\s_\-\/]|$)/.test(identity);
+    }
+
+    function findLanguageControl() {
+        const stableSelectors = [
+            '.wt-language-menu',
+            '[data-wt-menu="language"]',
+            '#language-menu',
+            '[id*="language"]',
+            '[class*="language"]',
+            '[id*="locale"]',
+            '[class*="locale"]'
+        ];
+
+        for (const selector of stableSelectors) {
+            const stable = document.querySelector(selector);
+            if (stable && isLanguageControl(stable)) {
+                return stable;
+            }
+        }
+
+        const searchRoots = [
+            '.potts-utility-nav',
+            '.wt-user-menu',
+            '.wt-header',
+            '.wt-header-wrapper',
+            'body > header',
+            'header[role="banner"]',
+            'header'
+        ];
+
+        for (const rootSelector of searchRoots) {
+            const root = document.querySelector(rootSelector);
+            if (!root) {
+                continue;
+            }
+
+            const candidates = Array.from(root.querySelectorAll('a, button, summary, [role="button"], .dropdown-toggle'));
+            const match = candidates.find(isLanguageControl);
+            if (match) {
+                return match;
+            }
+        }
+
+        return null;
+    }
+
+    function findUtilityNavigation() {
+        const selectors = [
+            '.potts-utility-menu',
+            '.potts-utility-nav .navbar-nav',
+            '.potts-utility-nav',
+            'header .wt-user-menu',
+            '.wt-header .wt-user-menu',
+            '.wt-header-wrapper .wt-user-menu'
+        ];
+
+        for (const selector of selectors) {
+            const element = document.querySelector(selector);
+            if (element) {
+                return element;
+            }
+        }
+
+        return null;
+    }
+
+    function prepareHeaderSelector(selector) {
+        selector.classList.add('potts-history-global--in-header');
+        const button = selector.querySelector('.potts-history-global__button');
+
+        if (button) {
+            button.classList.add('nav-link');
+        }
+    }
+
+    function insertSelectorAfterHost(selector, host) {
+        if (!host || !host.parentElement) {
+            return false;
+        }
+
+        prepareHeaderSelector(selector);
+
+        if (host.tagName.toLowerCase() === 'li' || host.classList.contains('nav-item')) {
+            const li = document.createElement('li');
+            li.className = 'nav-item potts-history-global-item';
+            li.appendChild(selector);
+            host.insertAdjacentElement('afterend', li);
+            return true;
+        }
+
+        host.insertAdjacentElement('afterend', selector);
+        return true;
+    }
+
+    function appendSelectorToUtilityNavigation(selector, utilityNav) {
+        if (!utilityNav) {
+            return false;
+        }
+
+        prepareHeaderSelector(selector);
+
+        if (utilityNav.matches('ul, ol, .navbar-nav, .nav')) {
+            const li = document.createElement('li');
+            li.className = 'nav-item potts-history-global-item';
+            li.appendChild(selector);
+            utilityNav.appendChild(li);
+            return true;
+        }
+
+        utilityNav.appendChild(selector);
+        return true;
     }
 
     function placeGlobalSelector() {
@@ -493,23 +760,12 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
 
         if (language) {
             const host = language.closest('li, .nav-item, .dropdown, .wt-header-item') || language.parentElement;
-            if (host && host.parentElement) {
-                const hostTag = host.tagName.toLowerCase();
-                if (hostTag === 'li') {
-                    const li = document.createElement('li');
-                    li.className = host.className;
-                    li.appendChild(selector);
-                    host.insertAdjacentElement('afterend', li);
-                } else {
-                    host.insertAdjacentElement('afterend', selector);
-                }
+            if (insertSelectorAfterHost(selector, host)) {
                 return true;
             }
         }
 
-        const utilityNav = document.querySelector('.wt-header .navbar-nav, header .navbar-nav, header nav, .wt-header');
-        if (utilityNav) {
-            utilityNav.appendChild(selector);
+        if (appendSelectorToUtilityNavigation(selector, findUtilityNavigation())) {
             return true;
         }
 
@@ -519,8 +775,8 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
     }
 
     function synchroniseHomepageSelector() {
-        document.querySelectorAll('select[name="history_region"]').forEach(function (select) {
-            select.value = selected;
+        document.querySelectorAll('[data-potts-history-collection]').forEach(function (checkbox) {
+            checkbox.checked = selected && selected.mode !== 'auto' && Array.isArray(selected.codes) && selected.codes.indexOf(checkbox.value) !== -1;
         });
     }
 
@@ -580,8 +836,10 @@ HTML;
 
         return strtr($html, [
             '__POTTS_OPTIONS__'  => $options_json ?: '[]',
-            '__POTTS_SELECTED__' => $selected_json ?: '"auto"',
-            '__POTTS_COOKIE__'   => $cookie_json ?: '"potts_history_region"',
+            '__POTTS_SELECTED__' => $selected_json ?: '{"mode":"auto","codes":[]}',
+            '__POTTS_DEFAULT_LABEL__' => $default_label_json ?: '"Australia"',
+            '__POTTS_COLLECTION_COOKIE__' => $collection_cookie_json ?: '"potts_history_collections"',
+            '__POTTS_LEGACY_COOKIE__' => $legacy_cookie_json ?: '"potts_history_region"',
             '__POTTS_SHOW_GLOBAL__' => $show_global_json,
         ]);
     }
@@ -631,34 +889,38 @@ HTML;
 
     private function regionSelectorBlockHtml(int $block_id): string
     {
-        $regions = $this->availableHistoryRegions();
-        $selected = $this->selectedHistoryRegionForDisplay();
-        $select_id = 'potts-history-region-' . $block_id;
-        $form_id = 'potts-history-region-form-' . $block_id;
+        $collections = $this->enabledHistoryCollections();
+        $selected = $this->selectedHistoryCollectionsForDisplay();
+        $form_id = 'potts-history-collections-form-' . $block_id;
+        $selected_codes = $selected['mode'] === 'custom' ? $selected['codes'] : [];
 
-        $options = '<option value="auto"' . ($selected === 'auto' ? ' selected' : '') . '>Site default</option>';
+        $checkboxes = '';
 
-        foreach ($regions as $code => $label) {
-            $options .= '<option value="' . $this->escape($code) . '"' . ($selected === $code ? ' selected' : '') . '>' . $this->escape($label) . '</option>';
+        foreach ($collections as $code => $label) {
+            $input_id = 'potts-history-collection-' . $block_id . '-' . preg_replace('/[^a-zA-Z0-9_-]+/', '-', $code);
+            $checkboxes .= '<div class="form-check">'
+                . '<input class="form-check-input" type="checkbox" value="' . $this->escape($code) . '" id="' . $this->escape($input_id) . '" data-potts-history-collection="1"' . (in_array($code, $selected_codes, true) ? ' checked' : '') . '>'
+                . '<label class="form-check-label" for="' . $this->escape($input_id) . '">' . $this->escape($label) . '</label>'
+                . '</div>';
         }
 
-        $selected_label = $selected === 'auto'
-            ? 'Site default (' . $this->defaultHistoryRegionLabel($regions) . ')'
-            : ($regions[$selected] ?? $selected);
+        $selected_label = $this->selectedHistoryCollectionsLabel($selected, $collections);
 
-        $cookie_name = json_encode(self::REGION_COOKIE, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+        $collection_cookie = json_encode(self::COLLECTIONS_COOKIE, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+        $legacy_cookie = json_encode(self::REGION_COOKIE, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
         $form_id_json = json_encode($form_id, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 
         return '<div class="card wt-block potts-historical-facts-selector mb-4">'
-            . '<div class="card-header"><h2 class="card-title h4 mb-0">Historical facts region</h2></div>'
+            . '<div class="card-header"><h2 class="card-title h4 mb-0">Historical fact collections</h2></div>'
             . '<div class="card-body">'
-            . '<form id="' . $this->escape($form_id) . '" class="row g-2 align-items-end">'
-            . '<div class="col-12 col-md">'
-            . '<label class="form-label" for="' . $this->escape($select_id) . '">Show historical facts for</label>'
-            . '<select class="form-select" id="' . $this->escape($select_id) . '" name="history_region">' . $options . '</select>'
-            . '</div>'
-            . '<div class="col-12 col-md-auto">'
-            . '<button class="btn btn-primary" type="submit">Apply</button>'
+            . '<form id="' . $this->escape($form_id) . '" class="potts-history-collections-form">'
+            . '<fieldset class="mb-3">'
+            . '<legend class="form-label fs-6 mb-2">Show historical facts from</legend>'
+            . '<div class="row row-cols-1 row-cols-md-2 g-1">' . $checkboxes . '</div>'
+            . '</fieldset>'
+            . '<div class="d-flex flex-wrap gap-2">'
+            . '<button class="btn btn-primary" type="submit" name="task" value="apply">Apply</button>'
+            . '<button class="btn btn-outline-secondary" type="submit" name="task" value="default">Use site default</button>'
             . '</div>'
             . '</form>'
             . '<p class="small text-muted mb-0 mt-2">Current selection: ' . $this->escape($selected_label) . '</p>'
@@ -670,81 +932,149 @@ HTML;
             . 'if(!form){return;}'
             . 'form.addEventListener("submit",function(event){'
             . 'event.preventDefault();'
-            . 'const select=form.querySelector("select[name=history_region]");'
-            . 'if(!select){return;}'
             . 'const secure=window.location.protocol==="https:"?"; Secure":"";'
-            . 'if(select.value==="auto"){'
-            . 'document.cookie=' . $cookie_name . '+"=; Max-Age=0; Path=/; SameSite=Lax"+secure;'
+            . 'const task=event.submitter&&event.submitter.value?event.submitter.value:"apply";'
+            . 'if(task==="default"){'
+            . 'document.cookie=' . $collection_cookie . '+"=; Max-Age=0; Path=/; SameSite=Lax"+secure;'
+            . 'document.cookie=' . $legacy_cookie . '+"=; Max-Age=0; Path=/; SameSite=Lax"+secure;'
             . '}else{'
-            . 'document.cookie=' . $cookie_name . '+"="+encodeURIComponent(select.value)+"; Max-Age=31536000; Path=/; SameSite=Lax"+secure;'
+            . 'const codes=Array.from(form.querySelectorAll("[data-potts-history-collection]:checked")).map(function(input){return input.value;});'
+            . 'if(codes.length===0){'
+            . 'document.cookie=' . $collection_cookie . '+"=; Max-Age=0; Path=/; SameSite=Lax"+secure;'
+            . '}else{'
+            . 'document.cookie=' . $collection_cookie . '+"="+encodeURIComponent(codes.join(","))+"; Max-Age=31536000; Path=/; SameSite=Lax"+secure;'
+            . '}'
+            . 'document.cookie=' . $legacy_cookie . '+"=; Max-Age=0; Path=/; SameSite=Lax"+secure;'
             . '}'
             . 'window.location.reload();'
             . '});'
             . '})();</script>';
     }
 
-    private function defaultHistoryRegionLabel(array $regions): string
+    private function defaultHistoryCollectionsLabel(array $collections): string
     {
-        $default = $this->defaultHistoryRegion();
+        $defaults = $this->defaultHistoryCollections();
+        $labels = [];
 
-        if ($default === null) {
+        foreach ($defaults as $code) {
+            if (isset($collections[$code])) {
+                $labels[] = $collections[$code];
+            }
+        }
+
+        if ($labels === []) {
             return 'Australia';
         }
 
-        return $regions[$default] ?? $default;
+        return implode(', ', $labels);
     }
 
-    private function availableHistoryRegions(): array
+    private function selectedHistoryCollectionsLabel(array $selected, array $collections): string
+    {
+        if (($selected['mode'] ?? 'auto') === 'auto') {
+            return 'Site default (' . $this->defaultHistoryCollectionsLabel($collections) . ')';
+        }
+
+        $labels = [];
+
+        foreach (($selected['codes'] ?? []) as $code) {
+            if (isset($collections[$code])) {
+                $labels[] = $collections[$code];
+            }
+        }
+
+        return $labels !== [] ? implode(', ', $labels) : 'Site default (' . $this->defaultHistoryCollectionsLabel($collections) . ')';
+    }
+
+    /** @return array<string,string> */
+    private function availableHistoryCollections(): array
     {
         $labels = [
+            'en_AH'  => 'Austro-Hungarian Empire',
+            'en_AT'  => 'Austria',
             'en_AU'  => 'Australia',
-            'en_NZ'  => 'New Zealand',
-            'en_ENG' => 'England',
-            'en_SCT' => 'Scotland',
-            'en_WLS' => 'Wales',
-            'en_GB'  => 'Great Britain / United Kingdom',
-            'en_IE'  => 'Ireland',
-            'en_US'  => 'United States',
             'en_CA'  => 'Canada',
-            'en_ZA'  => 'South Africa',
+            'en_CN'  => 'China',
+            'en_CZ'  => 'Czech lands',
             'en_DE'  => 'Germany',
+            'en_ENG' => 'England',
+            'en_EUR' => 'Europe',
+            'en_FR'  => 'France',
+            'en_GB'  => 'Great Britain / United Kingdom',
+            'en_GR'  => 'Greece',
+            'en_HU'  => 'Hungary',
+            'en_IE'  => 'Ireland',
+            'en_IN'  => 'India',
+            'en_IT'  => 'Italy',
+            'en_MT'  => 'Malta',
             'en_NL'  => 'Netherlands',
             'nl_NL'  => 'Netherlands - Dutch',
             'nl'     => 'Netherlands - Dutch',
-            'en_FR'  => 'France',
-            'en_IT'  => 'Italy',
-            'en_CN'  => 'China',
-            'en_IN'  => 'India',
-            'en_GR'  => 'Greece',
-            'en_MT'  => 'Malta',
+            'en_NZ'  => 'New Zealand',
+            'en_PL'  => 'Poland',
+            'en_SCT' => 'Scotland',
+            'en_SK'  => 'Slovakia',
+            'en_US'  => 'United States',
+            'en_WLD' => 'World events',
+            'en_WLS' => 'Wales',
+            'en_ZA'  => 'South Africa',
         ];
 
-        $regions = [];
+        $collections = [];
         $files = glob($this->dataFolder() . '*.csv') ?: [];
 
         foreach ($files as $file) {
             $code = $this->normaliseHistoryCode(pathinfo($file, PATHINFO_FILENAME));
 
             if ($this->isValidHistoryCode($code)) {
-                $regions[$code] = $labels[$code] ?? $code;
+                $collections[$code] = $labels[$code] ?? $code;
             }
         }
 
-        uasort($regions, static fn (string $a, string $b): int => strcasecmp($a, $b));
+        uasort($collections, static fn (string $a, string $b): int => strcasecmp($a, $b));
 
-        return $regions;
+        return $collections;
     }
 
-    private function selectedHistoryRegionForDisplay(): string
+    /** @return array<string,string> */
+    private function enabledHistoryCollections(): array
     {
-        $region = $_COOKIE[self::REGION_COOKIE] ?? '';
-        $region = $this->normaliseHistoryCode((string) $region);
+        $available = $this->availableHistoryCollections();
+        $enabled_codes = $this->enabledHistoryCollectionCodes();
 
-        if ($region === '' || $region === 'auto' || !$this->isValidHistoryCode($region) || $this->csvPathForHistoryCode($region) === null) {
-            return 'auto';
+        if ($enabled_codes === []) {
+            return $available;
         }
 
-        return $region;
+        return array_intersect_key($available, array_flip($enabled_codes));
+    }
+
+    /** @return list<string> */
+    private function enabledHistoryCollectionCodes(): array
+    {
+        $available = array_keys($this->availableHistoryCollections());
+        $preference = trim($this->getPreference('ENABLED_COLLECTIONS', self::DEFAULTS['ENABLED_COLLECTIONS']));
+
+        if ($preference === '') {
+            return $available;
+        }
+
+        $codes = $this->normaliseHistoryCodeList($preference);
+        $codes = array_values(array_intersect($codes, $available));
+
+        return $codes !== [] ? $codes : $available;
+    }
+
+    /** @return array{mode:string,codes:list<string>} */
+    private function selectedHistoryCollectionsForDisplay(): array
+    {
+        $override = $this->historyCollectionsOverride();
+
+        if ($override === null) {
+            return ['mode' => 'auto', 'codes' => []];
+        }
+
+        return ['mode' => 'custom', 'codes' => $override];
     }
 
     private function escape(string $text): string
@@ -794,14 +1124,11 @@ HTML;
     private function buildHistoricalEventGedcom(string $language_tag, ?Individual $individual): Collection
     {
         $events = new Collection();
-        $file = $this->bestCsvFile($language_tag);
+        $files = $this->selectedCsvFiles();
 
-        if ($file === null) {
+        if ($files === []) {
             return $events;
         }
-
-        $history_language = $this->languageCodeFromFile($file);
-        $rows = $this->loadCsvFile($file);
 
         $birth = $individual instanceof Individual ? $this->personBirthDate($individual) : null;
         $death = $individual instanceof Individual ? $this->personDeathDate($individual) : null;
@@ -819,47 +1146,94 @@ HTML;
             return $events;
         }
 
-        foreach ($rows as $row) {
-            $date = trim((string) ($row['date'] ?? ''));
-            $end_date = trim((string) ($row['end_date'] ?? ''));
-            $event_text = $this->cleanGedcomText((string) ($row['event_text'] ?? ''));
-            $link = $this->safeSourceLink((string) ($row['link'] ?? ''));
-            $category = $this->cleanGedcomText((string) ($row['category'] ?? ''));
+        $prepared = [];
+        $seen = [];
 
-            if ($date === '' || $event_text === '') {
-                continue;
-            }
+        foreach ($files as $file) {
+            $history_language = $this->languageCodeFromFile($file);
+            $rows = $this->loadCsvFile($file);
 
-            $start_date = $this->parseHistoricalDate($date);
+            foreach ($rows as $row) {
+                $date = trim((string) ($row['date'] ?? ''));
+                $end_date = trim((string) ($row['end_date'] ?? ''));
+                $event_text = $this->cleanGedcomText((string) ($row['event_text'] ?? ''));
+                $link = $this->safeSourceLink((string) ($row['link'] ?? ''));
+                $category = $this->cleanGedcomText((string) ($row['category'] ?? ''));
 
-            // This module deliberately only supports four-digit CE years.
-            // Rows with BCE, one, two or three digit years are ignored rather than
-            // being displayed without lifespan filtering.
-            if ($start_date === null) {
-                continue;
-            }
-
-            $finish_date = $end_date !== '' ? $this->parseHistoricalDate($end_date) : null;
-
-            if ($end_date !== '' && $finish_date === null) {
-                continue;
-            }
-
-            if ($individual instanceof Individual && $birth !== null) {
-                // A range that began before the person was born still matters
-                // when it continued into their lifetime.
-                if ($finish_date !== null && $finish_date['date'] < $birth['date']) {
+                if ($date === '' || $event_text === '') {
                     continue;
                 }
 
-                if ($finish_date === null && $start_date['date'] < $birth['date']) {
+                $start_date = $this->parseHistoricalDate($date);
+
+                // This module deliberately only supports four-digit CE years.
+                // Rows with BCE, one, two or three digit years are ignored rather than
+                // being displayed without lifespan filtering.
+                if ($start_date === null) {
                     continue;
                 }
 
-                if ($life_end !== null && $start_date['date'] > $life_end) {
+                $finish_date = $end_date !== '' ? $this->parseHistoricalDate($end_date) : null;
+
+                if ($end_date !== '' && $finish_date === null) {
                     continue;
                 }
+
+                if ($individual instanceof Individual && $birth !== null) {
+                    // A range that began before the person was born still matters
+                    // when it continued into their lifetime.
+                    if ($finish_date !== null && $finish_date['date'] < $birth['date']) {
+                        continue;
+                    }
+
+                    if ($finish_date === null && $start_date['date'] < $birth['date']) {
+                        continue;
+                    }
+
+                    if ($life_end !== null && $start_date['date'] > $life_end) {
+                        continue;
+                    }
+                }
+
+                $key = strtolower($date . '|' . $end_date . '|' . $event_text);
+
+                if (isset($seen[$key])) {
+                    continue;
+                }
+
+                $seen[$key] = true;
+                $prepared[] = [
+                    'date'             => $date,
+                    'end_date'         => $end_date,
+                    'event_text'       => $event_text,
+                    'link'             => $link,
+                    'category'         => $category,
+                    'start_date'       => $start_date,
+                    'finish_date'      => $finish_date,
+                    'history_language' => $history_language,
+                ];
             }
+        }
+
+        usort($prepared, static function (array $a, array $b): int {
+            $date_compare = $a['start_date']['date'] <=> $b['start_date']['date'];
+
+            if ($date_compare !== 0) {
+                return $date_compare;
+            }
+
+            return strcasecmp((string) $a['event_text'], (string) $b['event_text']);
+        });
+
+        foreach ($prepared as $row) {
+            $date = $row['date'];
+            $end_date = $row['end_date'];
+            $event_text = $row['event_text'];
+            $link = $row['link'];
+            $category = $row['category'];
+            $start_date = $row['start_date'];
+            $finish_date = $row['finish_date'];
+            $history_language = $row['history_language'];
 
             $date_text = $date;
 
@@ -895,18 +1269,22 @@ HTML;
         return $events;
     }
 
-    private function bestCsvFile(string $language_tag): ?string
+    /** @return list<string> */
+    private function selectedCsvFiles(): array
     {
-        // The website language must never change the selected historical region.
-        // The visitor's cookie overrides the persistent site default.
-        $selected_region = $this->historyRegionOverride() ?? $this->defaultHistoryRegion();
+        $codes = $this->historyCollectionsOverride() ?? $this->defaultHistoryCollections();
+        $files = [];
 
-        if ($selected_region !== null) {
-            $path = $this->csvPathForHistoryCode($selected_region);
+        foreach ($codes as $code) {
+            $path = $this->csvPathForHistoryCode($code);
 
             if ($path !== null) {
-                return $path;
+                $files[] = $path;
             }
+        }
+
+        if ($files !== []) {
+            return $files;
         }
 
         // Safe fallbacks if the configured default file has been removed.
@@ -914,36 +1292,62 @@ HTML;
             $path = $this->csvPathForHistoryCode($fallback);
 
             if ($path !== null) {
-                return $path;
+                return [$path];
             }
+        }
+
+        return [];
+    }
+
+    /** @return ?list<string> */
+    private function historyCollectionsOverride(): ?array
+    {
+        $enabled = array_keys($this->enabledHistoryCollections());
+
+        $raw = $_COOKIE[self::COLLECTIONS_COOKIE] ?? '';
+        $codes = $this->normaliseHistoryCodeList((string) $raw);
+        $codes = array_values(array_intersect($codes, $enabled));
+
+        if ($codes !== []) {
+            return $codes;
+        }
+
+        // Preserve old visitor cookies created by the single-region releases.
+        $legacy_region = $_COOKIE[self::REGION_COOKIE] ?? '';
+        $legacy_region = $this->normaliseHistoryCode((string) $legacy_region);
+
+        if ($legacy_region !== '' && $legacy_region !== 'auto' && in_array($legacy_region, $enabled, true) && $this->csvPathForHistoryCode($legacy_region) !== null) {
+            return [$legacy_region];
         }
 
         return null;
     }
 
-    private function historyRegionOverride(): ?string
+    /** @return list<string> */
+    private function defaultHistoryCollections(): array
     {
-        $region = $_COOKIE[self::REGION_COOKIE] ?? '';
-        $region = $this->normaliseHistoryCode((string) $region);
+        $enabled = array_keys($this->enabledHistoryCollections());
+        $preference = trim($this->getPreference('DEFAULT_COLLECTIONS', self::DEFAULTS['DEFAULT_COLLECTIONS']));
+        $codes = $this->normaliseHistoryCodeList($preference);
+        $codes = array_values(array_intersect($codes, $enabled));
 
-        if ($region === '' || $region === 'auto') {
-            return null;
+        if ($codes !== []) {
+            return $codes;
         }
 
-        if (!$this->isValidHistoryCode($region)) {
-            return null;
+        $legacy = $this->configuredDefaultHistoryRegion();
+
+        if ($legacy !== '' && in_array($legacy, $enabled, true)) {
+            return [$legacy];
         }
 
-        if ($this->csvPathForHistoryCode($region) === null) {
-            return null;
-        }
-
-        return $region;
+        return $enabled !== [] ? [$enabled[0]] : [];
     }
 
     private function defaultHistoryRegion(): ?string
     {
-        $region = $this->configuredDefaultHistoryRegion();
+        $collections = $this->defaultHistoryCollections();
+        $region = $collections[0] ?? $this->configuredDefaultHistoryRegion();
 
         return $this->csvPathForHistoryCode($region) !== null ? $region : null;
     }
@@ -1000,6 +1404,30 @@ HTML;
         }
 
         return strtolower($parts[0]);
+    }
+
+    /** @param string|array<int,string> $codes @return list<string> */
+    private function normaliseHistoryCodeList($codes): array
+    {
+        if (is_string($codes)) {
+            $codes = preg_split('/[\s,;|]+/', $codes) ?: [];
+        }
+
+        if (!is_array($codes)) {
+            return [];
+        }
+
+        $normalised = [];
+
+        foreach ($codes as $code) {
+            $code = $this->normaliseHistoryCode((string) $code);
+
+            if ($code !== '' && $code !== 'auto' && $this->isValidHistoryCode($code) && $this->csvPathForHistoryCode($code) !== null && !in_array($code, $normalised, true)) {
+                $normalised[] = $code;
+            }
+        }
+
+        return $normalised;
     }
 
     private function isValidHistoryCode(string $code): bool

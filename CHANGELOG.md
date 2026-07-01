@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.1.0-beta.3
+
+- Added support for selecting multiple historical fact collections at once.
+- Added administrator controls to choose which collections are available to visitors.
+- Changed the homepage block and header selector from single-region selection to multi-collection selection.
+- Preserved compatibility with older `potts_history_region` visitor cookies and the previous default region setting.
+- Merged selected CSV files, removed duplicate events and sorted results chronologically.
+- Added new bundled collections for Austria, Hungary, Czech lands, Slovakia, Poland, Austro-Hungarian Empire, Europe and World events.
+
+
+## 1.1.0-beta.2
+
+- Fixed the global History selector placement when webtrees is displayed in translated languages such as Dutch.
+- Added translated History button labels for common interface languages.
+- Avoided falling back into the main genealogy navigation when the Language menu cannot be detected.
+- Added more stable classes for themes to style the selector inside utility navigation.
+
 ## 1.1.0-beta.1
 
 - Added persistent administration settings for the default region, global selector, event ages and maximum assumed lifespan.

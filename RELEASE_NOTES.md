@@ -1,12 +1,10 @@
-# Potts Historical Facts 1.1.0-beta.1
+# Release notes
 
-This public beta adds upgrade-safe settings, more accurate lifetime filtering and a more accessible global History selector.
+## 1.1.0-beta.3
 
-## Testing Priorities
+This beta adds multi-collection historical facts. Visitors can now choose more than one collection, which is useful for families whose lives crossed changing borders such as the former Austro-Hungarian Empire. Administrators can also choose which bundled collections are offered to visitors.
 
-- Open and save the module settings page.
-- Change the default and visitor-selected regions.
-- Test individuals with and without death dates.
-- Test a historical date range that overlaps a person's birth or death.
-- Test the header selector with keyboard navigation and on mobile screens.
-- Test with Potts Modern and at least one standard webtrees theme.
+New bundled collections include Austria, Hungary, Czech lands, Slovakia, Poland, Austro-Hungarian Empire, Europe and World events.
+
+Existing single-region visitor cookies and the old default region setting are still recognised.
+

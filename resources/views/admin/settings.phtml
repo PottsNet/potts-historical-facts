@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 /**
  * @var string $action_url
- * @var array<string,string> $regions
+ * @var array<string,string> $collections
  * @var array<string,string> $settings
  * @var bool $saved
  * @var bool $reset
  * @var string $version
  */
+
+$enabled_collections = array_filter(explode(',', $settings['ENABLED_COLLECTIONS'] ?? ''));
+$default_collections = array_filter(explode(',', $settings['DEFAULT_COLLECTIONS'] ?? ''));
 ?>
 
 <div class="container-xl py-3">
@@ -32,20 +35,38 @@ declare(strict_types=1);
         <?= csrf_field() ?>
 
         <div class="card mb-3">
-            <div class="card-header"><h3 class="h5 mb-0">Region and event display</h3></div>
+            <div class="card-header"><h3 class="h5 mb-0">Collections and event display</h3></div>
             <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-12 col-lg-7">
-                        <label class="form-label" for="potts-history-default-region">Default historical region</label>
-                        <select class="form-select" id="potts-history-default-region" name="default_region">
-                            <?php foreach ($regions as $code => $label) : ?>
-                                <option value="<?= e($code) ?>" <?= $settings['DEFAULT_REGION'] === $code ? 'selected' : '' ?>><?= e($label) ?></option>
+                <div class="row g-4">
+                    <div class="col-12 col-xl-7">
+                        <h4 class="h6">Available historical fact collections</h4>
+                        <p class="form-text mt-0">Only ticked collections are offered to visitors in the header selector and homepage block.</p>
+                        <div class="row row-cols-1 row-cols-md-2 g-2">
+                            <?php foreach ($collections as $code => $label) : ?>
+                                <?php $input_id = 'potts-history-enabled-' . preg_replace('/[^a-zA-Z0-9_-]+/', '-', $code); ?>
+                                <div class="col">
+                                    <div class="form-check">
+                                        <input class="form-check-input" id="<?= e($input_id) ?>" name="enabled_collections[]" type="checkbox" value="<?= e($code) ?>" <?= in_array($code, $enabled_collections, true) ? 'checked' : '' ?>>
+                                        <label class="form-check-label" for="<?= e($input_id) ?>"><?= e($label) ?></label>
+                                    </div>
+                                </div>
                             <?php endforeach ?>
-                        </select>
-                        <div class="form-text">Used until a visitor makes their own selection.</div>
+                        </div>
                     </div>
 
-                    <div class="col-12 col-lg-5">
+                    <div class="col-12 col-xl-5">
+                        <h4 class="h6">Site default collections</h4>
+                        <p class="form-text mt-0">Used until a visitor makes their own selection. You can choose more than one.</p>
+                        <div class="border rounded p-3 mb-3" style="max-height: 20rem; overflow: auto;">
+                            <?php foreach ($collections as $code => $label) : ?>
+                                <?php $input_id = 'potts-history-default-' . preg_replace('/[^a-zA-Z0-9_-]+/', '-', $code); ?>
+                                <div class="form-check">
+                                    <input class="form-check-input" id="<?= e($input_id) ?>" name="default_collections[]" type="checkbox" value="<?= e($code) ?>" <?= in_array($code, $default_collections, true) ? 'checked' : '' ?>>
+                                    <label class="form-check-label" for="<?= e($input_id) ?>"><?= e($label) ?></label>
+                                </div>
+                            <?php endforeach ?>
+                        </div>
+
                         <label class="form-label" for="potts-history-max-lifespan">Maximum assumed lifespan</label>
                         <div class="input-group">
                             <input class="form-control" id="potts-history-max-lifespan" name="max_lifespan" type="number" min="80" max="150" step="1" value="<?= e($settings['MAX_LIFESPAN']) ?>">

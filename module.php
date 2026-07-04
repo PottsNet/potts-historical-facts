@@ -377,7 +377,7 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
         $ui_strings_json = json_encode([
             'choose_collections' => I18N::translate('Choose one or more historical fact collections.'),
             'site_default'       => I18N::translate('Site default'),
-            'site_default_with'  => I18N::translate('Site default (%s)'),
+            'site_default_with'  => I18N::translate('Site default (%s)', '%s'),
             'apply'              => I18N::translate('Apply'),
             'history'            => I18N::translate('History'),
         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);

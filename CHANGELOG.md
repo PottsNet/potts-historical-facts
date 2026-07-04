@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0
+
+- Promoted Potts Historical Facts from beta/pre-release to a regular release.
+- Added language-aware CSV selection for matching regional files, such as `en_NL.csv` and `nl_NL.csv`.
+- Added support for persistent custom CSV files in `data/modules/potts_historical_facts/data/`.
+- Added settings-page guidance for custom CSV files.
+- Added translatable module text with starter translations for Dutch, German, French, Polish and Portuguese.
+- Added a `latest-version.txt` update URL so webtrees and Custom Module Manager can detect updates.
+
 ## 1.1.0-beta.3
 
 - Added support for selecting multiple historical fact collections at once.

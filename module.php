@@ -25,6 +25,9 @@ use Psr\Http\Message\ServerRequestInterface;
 return new class extends AbstractModule implements ModuleCustomInterface, ModuleHistoricEventsInterface, ModuleGlobalInterface, ModuleBlockInterface, ModuleConfigInterface {
     use ModuleConfigTrait;
 
+    private const CUSTOM_VERSION = '1.1.0';
+    private const LATEST_VERSION_URL = 'https://raw.githubusercontent.com/PottsNet/potts-historical-facts/main/latest-version.txt';
+
     private const REGION_COOKIE = 'potts_history_region';
     private const COLLECTIONS_COOKIE = 'potts_history_collections';
     private const AGE_MARKER = '__POTTS_HISTORY_AGE__';
@@ -39,12 +42,12 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
 
     public function title(): string
     {
-        return 'Potts Historical Facts';
+        return I18N::translate('Potts Historical Facts');
     }
 
     public function description(): string
     {
-        return 'Displays historical facts from CSV files using visitor-selected historical fact collections available from every page.';
+        return I18N::translate('Displays historical facts from CSV files using visitor-selected historical fact collections available from every page.');
     }
 
     public function customModuleAuthorName(): string
@@ -54,27 +57,167 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
 
     public function customModuleVersion(): string
     {
-        return '1.1.0-beta.3';
+        return self::CUSTOM_VERSION;
     }
 
     public function customModuleLatestVersion(): string
     {
-        return $this->customModuleVersion();
+        return Registry::cache()->file()->remember(
+            $this->name() . '-latest-version',
+            function (): string {
+                $latest = trim((string) @file_get_contents(self::LATEST_VERSION_URL));
+
+                if (preg_match('/^v?(\d+\.\d+\.\d+(?:[-+][A-Za-z0-9.\-]+)?)$/', $latest, $match) === 1) {
+                    return $match[1];
+                }
+
+                return $this->customModuleVersion();
+            },
+            86400
+        );
     }
 
     public function customModuleLatestVersionUrl(): string
     {
-        return '';
+        return self::LATEST_VERSION_URL;
     }
 
     public function customModuleSupportUrl(): string
     {
-        return 'https://github.com/PottsNet/potts-historical-facts/issues';
+        return 'https://github.com/PottsNet/potts-historical-facts';
     }
 
     public function customTranslations(string $language): array
     {
-        return [];
+        $translations = [
+            'nl' => [
+                'Potts Historical Facts' => 'Potts historische feiten',
+                'Displays historical facts from CSV files using visitor-selected historical fact collections available from every page.' => 'Toont historische feiten uit CSV-bestanden met door bezoekers gekozen historische feitencollecties die vanaf elke pagina beschikbaar zijn.',
+                'Potts Historical Facts settings' => 'Instellingen voor Potts historische feiten',
+                'The Potts Historical Facts settings have been saved.' => 'De instellingen voor Potts historische feiten zijn opgeslagen.',
+                'The default settings have been restored.' => 'De standaardinstellingen zijn hersteld.',
+                'These preferences are stored by webtrees and are retained when the module is upgraded.' => 'Deze voorkeuren worden door webtrees opgeslagen en blijven behouden wanneer de module wordt bijgewerkt.',
+                'Collections and event display' => 'Collecties en weergave van gebeurtenissen',
+                'Available historical fact collections' => 'Beschikbare historische feitencollecties',
+                'Only ticked collections are offered to visitors in the header selector and homepage block.' => 'Alleen aangevinkte collecties worden aan bezoekers aangeboden in de kopselector en het blok op de startpagina.',
+                'Site default collections' => 'Standaardcollecties van de site',
+                'Used until a visitor makes their own selection. You can choose more than one.' => 'Wordt gebruikt totdat een bezoeker een eigen keuze maakt. U kunt er meer dan één kiezen.',
+                'Maximum assumed lifespan' => 'Maximaal aangenomen levensduur',
+                'Limits events when no death date is recorded.' => 'Beperkt gebeurtenissen wanneer er geen overlijdensdatum is vastgelegd.',
+                'Optional features' => 'Optionele functies',
+                'Show the History selector in the site header' => 'Toon de geschiedeniskiezer in de sitekop',
+                'The homepage block remains available when this is turned off.' => 'Het blok op de startpagina blijft beschikbaar wanneer dit is uitgeschakeld.',
+                'Show ages on historical events' => 'Toon leeftijden bij historische gebeurtenissen',
+                'Turn this off if another module already supplies historical-event ages.' => 'Schakel dit uit als een andere module al leeftijden bij historische gebeurtenissen toont.',
+                'Custom CSV files' => 'Aangepaste CSV-bestanden',
+                'To add your own historical fact collections, place CSV files in this persistent webtrees data folder. Files in this folder are not replaced when the module is upgraded.' => 'Plaats CSV-bestanden in deze blijvende webtrees-gegevensmap om uw eigen historische feitencollecties toe te voegen. Bestanden in deze map worden niet vervangen wanneer de module wordt bijgewerkt.',
+                'CSV format:' => 'CSV-formaat:',
+                'No persistent data folder was detected on this installation.' => 'Er is geen blijvende gegevensmap gevonden in deze installatie.',
+                'Restore defaults' => 'Standaardinstellingen herstellen',
+                'Save settings' => 'Instellingen opslaan',
+                'Restore the Potts Historical Facts defaults?' => 'De standaardinstellingen voor Potts historische feiten herstellen?',
+                'Historical fact collections' => 'Historische feitencollecties',
+                'Show historical facts from' => 'Toon historische feiten uit',
+                'Current selection: %s' => 'Huidige selectie: %s',
+                'This setting is independent of the website language. Where matching language-specific CSV files exist, the module will use the CSV that best matches the visitor\'s selected language.' => 'Deze instelling is onafhankelijk van de websitetaal. Wanneer overeenkomende taalspecifieke CSV-bestanden bestaan, gebruikt de module het CSV-bestand dat het beste past bij de gekozen taal van de bezoeker.',
+                'Apply' => 'Toepassen',
+                'Site default' => 'Sitestandaard',
+                'Site default (%s)' => 'Sitestandaard (%s)',
+                'Choose one or more historical fact collections.' => 'Kies een of meer historische feitencollecties.',
+                'History' => 'Geschiedenis',
+                'Historical facts' => 'Historische feiten',
+                'Age' => 'Leeftijd',
+                'Source' => 'Bron',
+            ],
+            'de' => [
+                'Potts Historical Facts' => 'Potts Historische Fakten',
+                'Potts Historical Facts settings' => 'Einstellungen für Potts Historische Fakten',
+                'Collections and event display' => 'Sammlungen und Ereignisanzeige',
+                'Available historical fact collections' => 'Verfügbare Sammlungen historischer Fakten',
+                'Site default collections' => 'Standardsammlungen der Website',
+                'Optional features' => 'Optionale Funktionen',
+                'Custom CSV files' => 'Eigene CSV-Dateien',
+                'Restore defaults' => 'Standardeinstellungen wiederherstellen',
+                'Save settings' => 'Einstellungen speichern',
+                'Historical fact collections' => 'Sammlungen historischer Fakten',
+                'Show historical facts from' => 'Historische Fakten anzeigen aus',
+                'Apply' => 'Anwenden',
+                'Site default' => 'Website-Standard',
+                'Site default (%s)' => 'Website-Standard (%s)',
+                'Choose one or more historical fact collections.' => 'Wählen Sie eine oder mehrere Sammlungen historischer Fakten aus.',
+                'History' => 'Geschichte',
+                'Historical facts' => 'Historische Fakten',
+                'Age' => 'Alter',
+                'Source' => 'Quelle',
+            ],
+            'fr' => [
+                'Potts Historical Facts' => 'Faits historiques Potts',
+                'Potts Historical Facts settings' => 'Paramètres des faits historiques Potts',
+                'Collections and event display' => 'Collections et affichage des événements',
+                'Available historical fact collections' => 'Collections de faits historiques disponibles',
+                'Site default collections' => 'Collections par défaut du site',
+                'Optional features' => 'Fonctions optionnelles',
+                'Custom CSV files' => 'Fichiers CSV personnalisés',
+                'Restore defaults' => 'Restaurer les valeurs par défaut',
+                'Save settings' => 'Enregistrer les paramètres',
+                'Historical fact collections' => 'Collections de faits historiques',
+                'Show historical facts from' => 'Afficher les faits historiques depuis',
+                'Apply' => 'Appliquer',
+                'Site default' => 'Valeur par défaut du site',
+                'Site default (%s)' => 'Valeur par défaut du site (%s)',
+                'Choose one or more historical fact collections.' => 'Choisissez une ou plusieurs collections de faits historiques.',
+                'History' => 'Histoire',
+                'Historical facts' => 'Faits historiques',
+                'Age' => 'Âge',
+                'Source' => 'Source',
+            ],
+            'pl' => [
+                'Potts Historical Facts' => 'Fakty historyczne Potts',
+                'Potts Historical Facts settings' => 'Ustawienia faktów historycznych Potts',
+                'Collections and event display' => 'Kolekcje i wyświetlanie wydarzeń',
+                'Available historical fact collections' => 'Dostępne kolekcje faktów historycznych',
+                'Site default collections' => 'Domyślne kolekcje witryny',
+                'Optional features' => 'Funkcje opcjonalne',
+                'Custom CSV files' => 'Własne pliki CSV',
+                'Restore defaults' => 'Przywróć domyślne',
+                'Save settings' => 'Zapisz ustawienia',
+                'Historical fact collections' => 'Kolekcje faktów historycznych',
+                'Show historical facts from' => 'Pokaż fakty historyczne z',
+                'Apply' => 'Zastosuj',
+                'Site default' => 'Domyślne witryny',
+                'Site default (%s)' => 'Domyślne witryny (%s)',
+                'Choose one or more historical fact collections.' => 'Wybierz jedną lub więcej kolekcji faktów historycznych.',
+                'History' => 'Historia',
+                'Historical facts' => 'Fakty historyczne',
+                'Age' => 'Wiek',
+                'Source' => 'Źródło',
+            ],
+            'pt' => [
+                'Potts Historical Facts' => 'Factos Históricos Potts',
+                'Potts Historical Facts settings' => 'Definições dos Factos Históricos Potts',
+                'Collections and event display' => 'Colecções e apresentação de eventos',
+                'Available historical fact collections' => 'Colecções de factos históricos disponíveis',
+                'Site default collections' => 'Colecções predefinidas do site',
+                'Optional features' => 'Funcionalidades opcionais',
+                'Custom CSV files' => 'Ficheiros CSV personalizados',
+                'Restore defaults' => 'Repor predefinições',
+                'Save settings' => 'Guardar definições',
+                'Historical fact collections' => 'Colecções de factos históricos',
+                'Show historical facts from' => 'Mostrar factos históricos de',
+                'Apply' => 'Aplicar',
+                'Site default' => 'Predefinição do site',
+                'Site default (%s)' => 'Predefinição do site (%s)',
+                'Choose one or more historical fact collections.' => 'Escolha uma ou mais colecções de factos históricos.',
+                'History' => 'História',
+                'Historical facts' => 'Factos históricos',
+                'Age' => 'Idade',
+                'Source' => 'Fonte',
+            ],
+        ];
+
+        $base = strtolower(strtok(str_replace('_', '-', $language), '-') ?: $language);
+
+        return $translations[$base] ?? [];
     }
 
     public function headContent(): string
@@ -87,6 +230,7 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
         $this->assertAdministrator($request);
         $this->layout = 'layouts/administration';
         View::registerNamespace('potts-historical-facts', $this->resourcesFolder() . 'views/');
+        $this->ensureUserDataFolder();
 
         return $this->viewResponse('potts-historical-facts::admin/settings', [
             'title'      => I18N::translate('Potts Historical Facts settings'),
@@ -99,6 +243,7 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
             'saved'      => Validator::queryParams($request)->boolean('saved', false),
             'reset'      => Validator::queryParams($request)->boolean('reset', false),
             'version'    => $this->customModuleVersion(),
+            'user_data_folder' => $this->userDataFolder(),
         ]);
     }
 
@@ -146,8 +291,8 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
         // Compatibility with the old single-select setting name.
         if ($defaults === []) {
             $region = isset($data['default_region']) && is_string($data['default_region'])
-                ? $this->normaliseHistoryCode($data['default_region'])
-                : self::DEFAULTS['DEFAULT_REGION'];
+                ? $this->canonicalHistorySelectionCode($this->normaliseHistoryCode($data['default_region']))
+                : $this->canonicalHistorySelectionCode(self::DEFAULTS['DEFAULT_REGION']);
 
             if (in_array($region, $enabled, true)) {
                 $defaults = [$region];
@@ -229,6 +374,13 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
         $options_json = json_encode($options, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
         $selected_json = json_encode($selected, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
         $default_label_json = json_encode($default_label, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+        $ui_strings_json = json_encode([
+            'choose_collections' => I18N::translate('Choose one or more historical fact collections.'),
+            'site_default'       => I18N::translate('Site default'),
+            'site_default_with'  => I18N::translate('Site default (%s)'),
+            'apply'              => I18N::translate('Apply'),
+            'history'            => I18N::translate('History'),
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
         $collection_cookie_json = json_encode(self::COLLECTIONS_COOKIE, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
         $legacy_cookie_json = json_encode(self::REGION_COOKIE, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
         $show_global_json = $this->showGlobalSelector() ? 'true' : 'false';
@@ -375,6 +527,7 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
     const options = __POTTS_OPTIONS__;
     const selected = __POTTS_SELECTED__;
     const defaultLabel = __POTTS_DEFAULT_LABEL__;
+    const uiText = __POTTS_UI_STRINGS__;
     const collectionCookieName = __POTTS_COLLECTION_COOKIE__;
     const legacyCookieName = __POTTS_LEGACY_COOKIE__;
     const enableGlobalSelector = __POTTS_SHOW_GLOBAL__;
@@ -424,7 +577,7 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
 
     function selectedLabels() {
         if (!selected || !Array.isArray(selected.codes) || selected.codes.length === 0 || selected.mode === 'auto') {
-            return ['Site default (' + defaultLabel + ')'];
+            return [(uiText.site_default_with || 'Site default (%s)').replace('%s', defaultLabel)];
         }
 
         const labels = selected.codes.map(function (code) {
@@ -432,7 +585,7 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
             return match ? match.label : code;
         });
 
-        return labels.length ? labels : ['Site default (' + defaultLabel + ')'];
+        return labels.length ? labels : [(uiText.site_default_with || 'Site default (%s)').replace('%s', defaultLabel)];
     }
 
     function selectedLabel() {
@@ -483,7 +636,7 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
 
         const intro = document.createElement('p');
         intro.className = 'potts-history-global__intro';
-        intro.textContent = 'Choose one or more historical fact collections.';
+        intro.textContent = uiText.choose_collections || 'Choose one or more historical fact collections.';
         menu.appendChild(intro);
 
         const selectedCodes = selected && selected.mode !== 'auto' && Array.isArray(selected.codes) ? selected.codes : [];
@@ -513,13 +666,13 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
         const reset = document.createElement('button');
         reset.type = 'button';
         reset.className = 'potts-history-global__action';
-        reset.textContent = 'Site default';
+        reset.textContent = uiText.site_default || 'Site default';
         reset.addEventListener('click', function () { saveCollections([]); });
 
         const apply = document.createElement('button');
         apply.type = 'button';
         apply.className = 'potts-history-global__action potts-history-global__action--primary';
-        apply.textContent = 'Apply';
+        apply.textContent = uiText.apply || 'Apply';
         apply.addEventListener('click', function () {
             saveCollections(checkboxes.filter(function (checkbox) { return checkbox.checked; }).map(function (checkbox) { return checkbox.value; }));
         });
@@ -577,17 +730,7 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
     }
 
     function historyLabel() {
-        const language = pageLanguage();
-
-        if (language.startsWith('nl')) return 'Geschiedenis';
-        if (language.startsWith('de')) return 'Geschichte';
-        if (language.startsWith('fr')) return 'Histoire';
-        if (language.startsWith('es')) return 'Historia';
-        if (language.startsWith('it')) return 'Storia';
-        if (language.startsWith('pt')) return 'História';
-        if (language.startsWith('pl')) return 'Historia';
-
-        return 'History';
+        return uiText.history || 'History';
     }
 
     function identityOf(element) {
@@ -838,6 +981,7 @@ HTML;
             '__POTTS_OPTIONS__'  => $options_json ?: '[]',
             '__POTTS_SELECTED__' => $selected_json ?: '{"mode":"auto","codes":[]}',
             '__POTTS_DEFAULT_LABEL__' => $default_label_json ?: '"Australia"',
+            '__POTTS_UI_STRINGS__' => $ui_strings_json ?: '{}',
             '__POTTS_COLLECTION_COOKIE__' => $collection_cookie_json ?: '"potts_history_collections"',
             '__POTTS_LEGACY_COOKIE__' => $legacy_cookie_json ?: '"potts_history_region"',
             '__POTTS_SHOW_GLOBAL__' => $show_global_json,
@@ -883,7 +1027,45 @@ HTML;
 
     public function dataFolder(): string
     {
+        return $this->bundledDataFolder();
+    }
+
+    private function bundledDataFolder(): string
+    {
         return $this->resourcesFolder() . 'data' . DIRECTORY_SEPARATOR;
+    }
+
+    private function userDataFolder(): string
+    {
+        if (defined('WT_DATA_DIR') && is_string(WT_DATA_DIR) && WT_DATA_DIR !== '') {
+            return rtrim(WT_DATA_DIR, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $this->name() . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR;
+        }
+
+        return '';
+    }
+
+    private function ensureUserDataFolder(): void
+    {
+        $folder = $this->userDataFolder();
+
+        if ($folder !== '' && !is_dir($folder)) {
+            @mkdir($folder, 0775, true);
+        }
+    }
+
+    /** @return list<string> */
+    private function historyDataFolders(): array
+    {
+        $folders = [];
+        $user_folder = $this->userDataFolder();
+
+        if ($user_folder !== '' && is_dir($user_folder)) {
+            $folders[] = $user_folder;
+        }
+
+        $folders[] = $this->bundledDataFolder();
+
+        return array_values(array_unique($folders));
     }
 
 
@@ -911,20 +1093,20 @@ HTML;
         $form_id_json = json_encode($form_id, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 
         return '<div class="card wt-block potts-historical-facts-selector mb-4">'
-            . '<div class="card-header"><h2 class="card-title h4 mb-0">Historical fact collections</h2></div>'
+            . '<div class="card-header"><h2 class="card-title h4 mb-0">' . $this->escape(I18N::translate('Historical fact collections')) . '</h2></div>'
             . '<div class="card-body">'
             . '<form id="' . $this->escape($form_id) . '" class="potts-history-collections-form">'
             . '<fieldset class="mb-3">'
-            . '<legend class="form-label fs-6 mb-2">Show historical facts from</legend>'
+            . '<legend class="form-label fs-6 mb-2">' . $this->escape(I18N::translate('Show historical facts from')) . '</legend>'
             . '<div class="row row-cols-1 row-cols-md-2 g-1">' . $checkboxes . '</div>'
             . '</fieldset>'
             . '<div class="d-flex flex-wrap gap-2">'
-            . '<button class="btn btn-primary" type="submit" name="task" value="apply">Apply</button>'
-            . '<button class="btn btn-outline-secondary" type="submit" name="task" value="default">Use site default</button>'
+            . '<button class="btn btn-primary" type="submit" name="task" value="apply">' . $this->escape(I18N::translate('Apply')) . '</button>'
+            . '<button class="btn btn-outline-secondary" type="submit" name="task" value="default">' . $this->escape(I18N::translate('Site default')) . '</button>'
             . '</div>'
             . '</form>'
-            . '<p class="small text-muted mb-0 mt-2">Current selection: ' . $this->escape($selected_label) . '</p>'
-            . '<p class="small text-muted mb-0 mt-1">This setting is independent of the website language.</p>'
+            . '<p class="small text-muted mb-0 mt-2">' . $this->escape(I18N::translate('Current selection: %s', $selected_label)) . '</p>'
+            . '<p class="small text-muted mb-0 mt-1">' . $this->escape(I18N::translate('This setting is independent of the website language. Where matching language-specific CSV files exist, the module will use the CSV that best matches the visitor\'s selected language.')) . '</p>'
             . '</div>'
             . '</div>'
             . '<script>(function(){'
@@ -963,7 +1145,7 @@ HTML;
         }
 
         if ($labels === []) {
-            return 'Australia';
+            return I18N::translate('Australia');
         }
 
         return implode(', ', $labels);
@@ -972,7 +1154,7 @@ HTML;
     private function selectedHistoryCollectionsLabel(array $selected, array $collections): string
     {
         if (($selected['mode'] ?? 'auto') === 'auto') {
-            return 'Site default (' . $this->defaultHistoryCollectionsLabel($collections) . ')';
+            return I18N::translate('Site default (%s)', $this->defaultHistoryCollectionsLabel($collections));
         }
 
         $labels = [];
@@ -983,7 +1165,7 @@ HTML;
             }
         }
 
-        return $labels !== [] ? implode(', ', $labels) : 'Site default (' . $this->defaultHistoryCollectionsLabel($collections) . ')';
+        return $labels !== [] ? implode(', ', $labels) : I18N::translate('Site default (%s)', $this->defaultHistoryCollectionsLabel($collections));
     }
 
     /** @return array<string,string> */
@@ -1008,8 +1190,6 @@ HTML;
             'en_IT'  => 'Italy',
             'en_MT'  => 'Malta',
             'en_NL'  => 'Netherlands',
-            'nl_NL'  => 'Netherlands - Dutch',
-            'nl'     => 'Netherlands - Dutch',
             'en_NZ'  => 'New Zealand',
             'en_PL'  => 'Poland',
             'en_SCT' => 'Scotland',
@@ -1021,19 +1201,42 @@ HTML;
         ];
 
         $collections = [];
-        $files = glob($this->dataFolder() . '*.csv') ?: [];
 
-        foreach ($files as $file) {
-            $code = $this->normaliseHistoryCode(pathinfo($file, PATHINFO_FILENAME));
+        foreach ($this->historyDataFolders() as $folder) {
+            $files = glob($folder . '*.csv') ?: [];
 
-            if ($this->isValidHistoryCode($code)) {
-                $collections[$code] = $labels[$code] ?? $code;
+            foreach ($files as $file) {
+                $code = $this->normaliseHistoryCode(pathinfo($file, PATHINFO_FILENAME));
+
+                if (!$this->isValidHistoryCode($code)) {
+                    continue;
+                }
+
+                $selection_code = $this->canonicalHistorySelectionCode($code);
+
+                if ($selection_code !== '' && !isset($collections[$selection_code])) {
+                    $collections[$selection_code] = $this->historyCollectionLabel($selection_code, $labels);
+                }
             }
         }
 
         uasort($collections, static fn (string $a, string $b): int => strcasecmp($a, $b));
 
         return $collections;
+    }
+
+    /** @param array<string,string> $labels */
+    private function historyCollectionLabel(string $code, array $labels): string
+    {
+        if (isset($labels[$code])) {
+            return I18N::translate($labels[$code]);
+        }
+
+        if (preg_match('/^([a-z]{2})_([A-Z]{2,3})$/', $code, $match) === 1) {
+            return strtoupper($match[2]) . ' (' . strtolower($match[1]) . ')';
+        }
+
+        return $code;
     }
 
     /** @return array<string,string> */
@@ -1124,7 +1327,7 @@ HTML;
     private function buildHistoricalEventGedcom(string $language_tag, ?Individual $individual): Collection
     {
         $events = new Collection();
-        $files = $this->selectedCsvFiles();
+        $files = $this->selectedCsvFiles($language_tag);
 
         if ($files === []) {
             return $events;
@@ -1270,13 +1473,13 @@ HTML;
     }
 
     /** @return list<string> */
-    private function selectedCsvFiles(): array
+    private function selectedCsvFiles(string $language_tag): array
     {
         $codes = $this->historyCollectionsOverride() ?? $this->defaultHistoryCollections();
         $files = [];
 
         foreach ($codes as $code) {
-            $path = $this->csvPathForHistoryCode($code);
+            $path = $this->csvPathForHistoryCodeForLanguage($code, $language_tag);
 
             if ($path !== null) {
                 $files[] = $path;
@@ -1289,7 +1492,7 @@ HTML;
 
         // Safe fallbacks if the configured default file has been removed.
         foreach (['en_AU', 'en'] as $fallback) {
-            $path = $this->csvPathForHistoryCode($fallback);
+            $path = $this->csvPathForHistoryCodeForLanguage($fallback, $language_tag);
 
             if ($path !== null) {
                 return [$path];
@@ -1314,7 +1517,7 @@ HTML;
 
         // Preserve old visitor cookies created by the single-region releases.
         $legacy_region = $_COOKIE[self::REGION_COOKIE] ?? '';
-        $legacy_region = $this->normaliseHistoryCode((string) $legacy_region);
+        $legacy_region = $this->canonicalHistorySelectionCode($this->normaliseHistoryCode((string) $legacy_region));
 
         if ($legacy_region !== '' && $legacy_region !== 'auto' && in_array($legacy_region, $enabled, true) && $this->csvPathForHistoryCode($legacy_region) !== null) {
             return [$legacy_region];
@@ -1349,6 +1552,8 @@ HTML;
         $collections = $this->defaultHistoryCollections();
         $region = $collections[0] ?? $this->configuredDefaultHistoryRegion();
 
+        $region = $this->canonicalHistorySelectionCode($region);
+
         return $this->csvPathForHistoryCode($region) !== null ? $region : null;
     }
 
@@ -1357,7 +1562,7 @@ HTML;
         $preference = $this->normaliseHistoryCode($this->getPreference('DEFAULT_REGION', ''));
 
         if ($this->csvPathForHistoryCode($preference) !== null) {
-            return $preference;
+            return $this->canonicalHistorySelectionCode($preference);
         }
 
         // Migrate the file-based setting used by releases before 1.1.0.
@@ -1368,12 +1573,12 @@ HTML;
             $region = $this->normaliseHistoryCode($region);
 
             if ($region !== 'auto' && $this->isValidHistoryCode($region) && $this->csvPathForHistoryCode($region) !== null) {
-                return $region;
+                return $this->canonicalHistorySelectionCode($region);
             }
         }
 
         return $this->csvPathForHistoryCode(self::DEFAULTS['DEFAULT_REGION']) !== null
-            ? self::DEFAULTS['DEFAULT_REGION']
+            ? $this->canonicalHistorySelectionCode(self::DEFAULTS['DEFAULT_REGION'])
             : '';
     }
 
@@ -1422,8 +1627,12 @@ HTML;
         foreach ($codes as $code) {
             $code = $this->normaliseHistoryCode((string) $code);
 
-            if ($code !== '' && $code !== 'auto' && $this->isValidHistoryCode($code) && $this->csvPathForHistoryCode($code) !== null && !in_array($code, $normalised, true)) {
-                $normalised[] = $code;
+            if ($code !== '' && $code !== 'auto' && $this->isValidHistoryCode($code) && $this->csvPathForHistoryCode($code) !== null) {
+                $code = $this->canonicalHistorySelectionCode($code);
+
+                if ($code !== '' && !in_array($code, $normalised, true)) {
+                    $normalised[] = $code;
+                }
             }
         }
 
@@ -1443,9 +1652,64 @@ HTML;
             return null;
         }
 
-        $path = $this->dataFolder() . $code . '.csv';
+        foreach ($this->historyDataFolders() as $folder) {
+            $path = $folder . $code . '.csv';
 
-        return is_file($path) ? $path : null;
+            if (is_file($path)) {
+                return $path;
+            }
+        }
+
+        return null;
+    }
+
+    private function csvPathForHistoryCodeForLanguage(string $code, string $language_tag): ?string
+    {
+        $preferred = $this->languagePreferredHistoryCode($code, $language_tag);
+
+        return $this->csvPathForHistoryCode($preferred) ?? $this->csvPathForHistoryCode($code);
+    }
+
+    private function canonicalHistorySelectionCode(string $code): string
+    {
+        $code = $this->normaliseHistoryCode($code);
+
+        if (preg_match('/^[a-z]{2}_([A-Z]{2,3})$/', $code, $match) !== 1) {
+            return $code;
+        }
+
+        $english_code = 'en_' . $match[1];
+
+        if ($this->csvPathForHistoryCode($english_code) !== null) {
+            return $english_code;
+        }
+
+        return $code;
+    }
+
+    private function languagePreferredHistoryCode(string $code, string $language_tag): string
+    {
+        $code = $this->normaliseHistoryCode($code);
+
+        if (preg_match('/^[a-z]{2}_([A-Z]{2,3})$/', $code, $match) !== 1) {
+            return $code;
+        }
+
+        $region = $match[1];
+        $language = strtolower(strtok(str_replace('_', '-', $language_tag), '-') ?: 'en');
+        $language_code = $language . '_' . $region;
+
+        if ($this->csvPathForHistoryCode($language_code) !== null) {
+            return $language_code;
+        }
+
+        $english_code = 'en_' . $region;
+
+        if ($this->csvPathForHistoryCode($english_code) !== null) {
+            return $english_code;
+        }
+
+        return $code;
     }
 
     private function languageCodeFromFile(string $file): string
@@ -1753,12 +2017,12 @@ HTML;
 
     private function ageHeading(string $history_language): string
     {
-        return substr($history_language, 0, 2) === 'nl' ? 'Leeftijd' : 'Age';
+        return substr($history_language, 0, 2) === 'nl' ? 'Leeftijd' : I18N::translate('Age');
     }
 
     private function sourceHeading(string $history_language): string
     {
-        return substr($history_language, 0, 2) === 'nl' ? 'Bron' : 'Source';
+        return substr($history_language, 0, 2) === 'nl' ? 'Bron' : I18N::translate('Source');
     }
 
     private function ageDisplayText(array $birth, array $start_date, ?array $finish_date, string $history_language): ?string

@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Fisharebest\Webtrees\I18N;
+
 /**
  * @var string $action_url
  * @var array<string,string> $collections
@@ -9,6 +11,7 @@ declare(strict_types=1);
  * @var bool $saved
  * @var bool $reset
  * @var string $version
+ * @var string $user_data_folder
  */
 
 $enabled_collections = array_filter(explode(',', $settings['ENABLED_COLLECTIONS'] ?? ''));
@@ -17,16 +20,16 @@ $default_collections = array_filter(explode(',', $settings['DEFAULT_COLLECTIONS'
 
 <div class="container-xl py-3">
     <?php if ($saved) : ?>
-        <div class="alert alert-success" role="status">The Potts Historical Facts settings have been saved.</div>
+        <div class="alert alert-success" role="status"><?= e(I18N::translate('The Potts Historical Facts settings have been saved.')) ?></div>
     <?php endif ?>
     <?php if ($reset) : ?>
-        <div class="alert alert-info" role="status">The default settings have been restored.</div>
+        <div class="alert alert-info" role="status"><?= e(I18N::translate('The default settings have been restored.')) ?></div>
     <?php endif ?>
 
     <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
         <div>
-            <h2 class="h3 mb-1">Potts Historical Facts settings</h2>
-            <p class="text-muted mb-0">These preferences are stored by webtrees and are retained when the module is upgraded.</p>
+            <h2 class="h3 mb-1"><?= e(I18N::translate('Potts Historical Facts settings')) ?></h2>
+            <p class="text-muted mb-0"><?= e(I18N::translate('These preferences are stored by webtrees and are retained when the module is upgraded.')) ?></p>
         </div>
         <span class="badge text-bg-secondary">v<?= e($version) ?></span>
     </div>
@@ -35,12 +38,12 @@ $default_collections = array_filter(explode(',', $settings['DEFAULT_COLLECTIONS'
         <?= csrf_field() ?>
 
         <div class="card mb-3">
-            <div class="card-header"><h3 class="h5 mb-0">Collections and event display</h3></div>
+            <div class="card-header"><h3 class="h5 mb-0"><?= e(I18N::translate('Collections and event display')) ?></h3></div>
             <div class="card-body">
                 <div class="row g-4">
                     <div class="col-12 col-xl-7">
-                        <h4 class="h6">Available historical fact collections</h4>
-                        <p class="form-text mt-0">Only ticked collections are offered to visitors in the header selector and homepage block.</p>
+                        <h4 class="h6"><?= e(I18N::translate('Available historical fact collections')) ?></h4>
+                        <p class="form-text mt-0"><?= e(I18N::translate('Only ticked collections are offered to visitors in the header selector and homepage block.')) ?></p>
                         <div class="row row-cols-1 row-cols-md-2 g-2">
                             <?php foreach ($collections as $code => $label) : ?>
                                 <?php $input_id = 'potts-history-enabled-' . preg_replace('/[^a-zA-Z0-9_-]+/', '-', $code); ?>
@@ -55,8 +58,8 @@ $default_collections = array_filter(explode(',', $settings['DEFAULT_COLLECTIONS'
                     </div>
 
                     <div class="col-12 col-xl-5">
-                        <h4 class="h6">Site default collections</h4>
-                        <p class="form-text mt-0">Used until a visitor makes their own selection. You can choose more than one.</p>
+                        <h4 class="h6"><?= e(I18N::translate('Site default collections')) ?></h4>
+                        <p class="form-text mt-0"><?= e(I18N::translate('Used until a visitor makes their own selection. You can choose more than one.')) ?></p>
                         <div class="border rounded p-3 mb-3" style="max-height: 20rem; overflow: auto;">
                             <?php foreach ($collections as $code => $label) : ?>
                                 <?php $input_id = 'potts-history-default-' . preg_replace('/[^a-zA-Z0-9_-]+/', '-', $code); ?>
@@ -67,37 +70,51 @@ $default_collections = array_filter(explode(',', $settings['DEFAULT_COLLECTIONS'
                             <?php endforeach ?>
                         </div>
 
-                        <label class="form-label" for="potts-history-max-lifespan">Maximum assumed lifespan</label>
+                        <label class="form-label" for="potts-history-max-lifespan"><?= e(I18N::translate('Maximum assumed lifespan')) ?></label>
                         <div class="input-group">
                             <input class="form-control" id="potts-history-max-lifespan" name="max_lifespan" type="number" min="80" max="150" step="1" value="<?= e($settings['MAX_LIFESPAN']) ?>">
                             <span class="input-group-text">years</span>
                         </div>
-                        <div class="form-text">Limits events when no death date is recorded.</div>
+                        <div class="form-text"><?= e(I18N::translate('Limits events when no death date is recorded.')) ?></div>
                     </div>
                 </div>
             </div>
         </div>
 
+
+        <div class="card mb-3">
+            <div class="card-header"><h3 class="h5 mb-0"><?= e(I18N::translate('Custom CSV files')) ?></h3></div>
+            <div class="card-body">
+                <?php if ($user_data_folder !== '') : ?>
+                    <p class="mb-2"><?= e(I18N::translate('To add your own historical fact collections, place CSV files in this persistent webtrees data folder. Files in this folder are not replaced when the module is upgraded.')) ?></p>
+                    <code class="d-block p-2 bg-light border rounded mb-2"><?= e($user_data_folder) ?></code>
+                    <p class="form-text mb-0"><strong><?= e(I18N::translate('CSV format:')) ?></strong> <code>#date;end_date;event_text;link;category</code></p>
+                <?php else : ?>
+                    <p class="mb-0 text-muted"><?= e(I18N::translate('No persistent data folder was detected on this installation.')) ?></p>
+                <?php endif ?>
+            </div>
+        </div>
+
         <div class="card mb-4">
-            <div class="card-header"><h3 class="h5 mb-0">Optional features</h3></div>
+            <div class="card-header"><h3 class="h5 mb-0"><?= e(I18N::translate('Optional features')) ?></h3></div>
             <div class="card-body">
                 <div class="form-check form-switch mb-3">
                     <input class="form-check-input" id="potts-history-global-selector" name="show_global_selector" type="checkbox" role="switch" value="1" <?= $settings['SHOW_GLOBAL_SELECTOR'] === '1' ? 'checked' : '' ?>>
-                    <label class="form-check-label" for="potts-history-global-selector"><strong>Show the History selector in the site header</strong></label>
-                    <div class="form-text">The homepage block remains available when this is turned off.</div>
+                    <label class="form-check-label" for="potts-history-global-selector"><strong><?= e(I18N::translate('Show the History selector in the site header')) ?></strong></label>
+                    <div class="form-text"><?= e(I18N::translate('The homepage block remains available when this is turned off.')) ?></div>
                 </div>
 
                 <div class="form-check form-switch">
                     <input class="form-check-input" id="potts-history-event-ages" name="show_event_ages" type="checkbox" role="switch" value="1" <?= $settings['SHOW_EVENT_AGES'] === '1' ? 'checked' : '' ?>>
-                    <label class="form-check-label" for="potts-history-event-ages"><strong>Show ages on historical events</strong></label>
-                    <div class="form-text">Turn this off if another module already supplies historical-event ages.</div>
+                    <label class="form-check-label" for="potts-history-event-ages"><strong><?= e(I18N::translate('Show ages on historical events')) ?></strong></label>
+                    <div class="form-text"><?= e(I18N::translate('Turn this off if another module already supplies historical-event ages.')) ?></div>
                 </div>
             </div>
         </div>
 
         <div class="d-flex flex-wrap justify-content-end gap-2">
-            <button class="btn btn-outline-secondary" type="submit" name="task" value="reset" onclick="return confirm('Restore the Potts Historical Facts defaults?')">Restore defaults</button>
-            <button class="btn btn-primary" type="submit" name="task" value="save">Save settings</button>
+            <button class="btn btn-outline-secondary" type="submit" name="task" value="reset" onclick="return confirm('<?= e(I18N::translate('Restore the Potts Historical Facts defaults?')) ?>')"><?= e(I18N::translate('Restore defaults')) ?></button>
+            <button class="btn btn-primary" type="submit" name="task" value="save"><?= e(I18N::translate('Save settings')) ?></button>
         </div>
     </form>
 </div>

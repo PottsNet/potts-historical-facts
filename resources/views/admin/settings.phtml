@@ -18,6 +18,11 @@ $enabled_collections = array_filter(explode(',', $settings['ENABLED_COLLECTIONS'
 $default_collections = array_filter(explode(',', $settings['DEFAULT_COLLECTIONS'] ?? ''));
 ?>
 
+<?= view('components/breadcrumbs', ['links' => [
+    route(\Fisharebest\Webtrees\Http\RequestHandlers\ControlPanel::class) => I18N::translate('Control panel'),
+    I18N::translate('Potts Historical Facts settings'),
+]]) ?>
+
 <div class="container-xl py-3">
     <?php if ($saved) : ?>
         <div class="alert alert-success" role="status"><?= e(I18N::translate('The Potts Historical Facts settings have been saved.')) ?></div>

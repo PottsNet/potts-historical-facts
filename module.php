@@ -626,7 +626,7 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
         button.setAttribute('aria-haspopup', 'dialog');
         button.setAttribute('aria-expanded', 'false');
         button.setAttribute('aria-controls', 'potts-history-global-menu');
-        button.textContent = historyLabel() + ': ' + selectedLabel();
+        button.textContent = historyLabel();
 
         const menu = document.createElement('div');
         menu.id = 'potts-history-global-menu';

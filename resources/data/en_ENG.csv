@@ -1,63 +1,63 @@
 #date;end_date;event_text;link;category
-14 OCT 1066;;William, Duke of Normandy defeats Harold Godwinson at the Battle of Hastings, beginning Norman rule in England.;https://en.wikipedia.org/wiki/Battle_of_Hastings;English History
-25 DEC 1066;;William I is crowned King of England at Westminster Abbey.;https://en.wikipedia.org/wiki/William_the_Conqueror;English History
-1 AUG 1086;;The Domesday survey is completed in 1086, recording landholdings and resources across much of England.;https://en.wikipedia.org/wiki/Domesday_Book;English History
-5 AUG 1100;;Henry I issues the Charter of Liberties after becoming king.;https://en.wikipedia.org/wiki/Charter_of_Liberties;English History
-25 NOV 1120;;The White Ship sinks, killing William Adelin and creating a succession crisis.;https://en.wikipedia.org/wiki/White_Ship;English History
-22 DEC 1135;;Stephen is crowned king, leading into the civil conflict later known as The Anarchy.;https://en.wikipedia.org/wiki/The_Anarchy;English History
-19 DEC 1154;;Henry II becomes king and begins the Plantagenet dynasty in England.;https://en.wikipedia.org/wiki/Henry_II_of_England;English History
-30 JAN 1164;;The Constitutions of Clarendon attempt to define royal authority over the English church.;https://en.wikipedia.org/wiki/Constitutions_of_Clarendon;English History
-29 DEC 1170;;Thomas Becket is murdered in Canterbury Cathedral.;https://en.wikipedia.org/wiki/Thomas_Becket;English History
-3 SEP 1189;;Richard I becomes king of England.;https://en.wikipedia.org/wiki/Richard_I_of_England;English History
-27 MAY 1199;;John becomes king after the death of Richard I.;https://en.wikipedia.org/wiki/John,_King_of_England;English History
-15 JUN 1215;;King John agrees to Magna Carta at Runnymede, limiting royal power and asserting legal rights.;https://www.nationalarchives.gov.uk/education/resources/magna-carta/british-library-magna-carta-1215-runnymede/;English History
-12 SEP 1217;;The Treaty of Lambeth helps end the First Barons War and confirms the settlement under Henry III.;https://en.wikipedia.org/wiki/Treaty_of_Lambeth;English History
-11 JUN 1258;;The Provisions of Oxford impose a council-led reform programme on Henry III.;https://en.wikipedia.org/wiki/Provisions_of_Oxford;English History
-14 MAY 1264;;Simon de Montfort defeats royal forces at Lewes and becomes a leading political power.;https://en.wikipedia.org/wiki/Battle_of_Lewes;English History
-20 JAN 1265;;Simon de Montfort calls a parliament including knights and burgesses.;https://en.wikipedia.org/wiki/Simon_de_Montforts_Parliament;English History
-20 NOV 1272;;Edward I becomes king and later strengthens royal administration.;https://en.wikipedia.org/wiki/Edward_I_of_England;English History
-18 JUL 1290;;Edward I expels Jews from England by the Edict of Expulsion.;https://en.wikipedia.org/wiki/Edict_of_Expulsion;English History
-13 NOV 1295;;The Model Parliament is summoned, influencing later parliamentary development.;https://en.wikipedia.org/wiki/Model_Parliament;English History
-7 JUL 1307;;Edward II becomes king of England.;https://en.wikipedia.org/wiki/Edward_II_of_England;English History
-24 JUN 1314;;English forces are defeated by the Scots at Bannockburn.;https://en.wikipedia.org/wiki/Battle_of_Bannockburn;English History
-25 JAN 1327;;Edward II is forced to abdicate and Edward III becomes king.;https://en.wikipedia.org/wiki/Edward_III_of_England;English History
-24 MAY 1337;;The Hundred Years War begins between England and France.;https://en.wikipedia.org/wiki/Hundred_Years_War;English History
+@#DJULIAN@ 14 OCT 1066;;William, Duke of Normandy defeats Harold Godwinson at the Battle of Hastings, beginning Norman rule in England.;https://en.wikipedia.org/wiki/Battle_of_Hastings;English History
+@#DJULIAN@ 25 DEC 1066;;William I is crowned King of England at Westminster Abbey.;https://en.wikipedia.org/wiki/William_the_Conqueror;English History
+@#DJULIAN@ 1 AUG 1086;;The Domesday survey is completed in 1086, recording landholdings and resources across much of England.;https://en.wikipedia.org/wiki/Domesday_Book;English History
+@#DJULIAN@ 5 AUG 1100;;Henry I issues the Charter of Liberties after becoming king.;https://en.wikipedia.org/wiki/Charter_of_Liberties;English History
+@#DJULIAN@ 25 NOV 1120;;The White Ship sinks, killing William Adelin and creating a succession crisis.;https://en.wikipedia.org/wiki/White_Ship;English History
+@#DJULIAN@ 22 DEC 1135;;Stephen is crowned king, leading into the civil conflict later known as The Anarchy.;https://en.wikipedia.org/wiki/The_Anarchy;English History
+@#DJULIAN@ 19 DEC 1154;;Henry II becomes king and begins the Plantagenet dynasty in England.;https://en.wikipedia.org/wiki/Henry_II_of_England;English History
+@#DJULIAN@ 30 JAN 1164;;The Constitutions of Clarendon attempt to define royal authority over the English church.;https://en.wikipedia.org/wiki/Constitutions_of_Clarendon;English History
+@#DJULIAN@ 29 DEC 1170;;Thomas Becket is murdered in Canterbury Cathedral.;https://en.wikipedia.org/wiki/Thomas_Becket;English History
+@#DJULIAN@ 3 SEP 1189;;Richard I becomes king of England.;https://en.wikipedia.org/wiki/Richard_I_of_England;English History
+@#DJULIAN@ 27 MAY 1199;;John becomes king after the death of Richard I.;https://en.wikipedia.org/wiki/John,_King_of_England;English History
+@#DJULIAN@ 15 JUN 1215;;King John agrees to Magna Carta at Runnymede, limiting royal power and asserting legal rights.;https://www.nationalarchives.gov.uk/education/resources/magna-carta/british-library-magna-carta-1215-runnymede/;English History
+@#DJULIAN@ 12 SEP 1217;;The Treaty of Lambeth helps end the First Barons War and confirms the settlement under Henry III.;https://en.wikipedia.org/wiki/Treaty_of_Lambeth;English History
+@#DJULIAN@ 11 JUN 1258;;The Provisions of Oxford impose a council-led reform programme on Henry III.;https://en.wikipedia.org/wiki/Provisions_of_Oxford;English History
+@#DJULIAN@ 14 MAY 1264;;Simon de Montfort defeats royal forces at Lewes and becomes a leading political power.;https://en.wikipedia.org/wiki/Battle_of_Lewes;English History
+@#DJULIAN@ 20 JAN 1265;;Simon de Montfort calls a parliament including knights and burgesses.;https://en.wikipedia.org/wiki/Simon_de_Montforts_Parliament;English History
+@#DJULIAN@ 20 NOV 1272;;Edward I becomes king and later strengthens royal administration.;https://en.wikipedia.org/wiki/Edward_I_of_England;English History
+@#DJULIAN@ 18 JUL 1290;;Edward I expels Jews from England by the Edict of Expulsion.;https://en.wikipedia.org/wiki/Edict_of_Expulsion;English History
+@#DJULIAN@ 13 NOV 1295;;The Model Parliament is summoned, influencing later parliamentary development.;https://en.wikipedia.org/wiki/Model_Parliament;English History
+@#DJULIAN@ 7 JUL 1307;;Edward II becomes king of England.;https://en.wikipedia.org/wiki/Edward_II_of_England;English History
+@#DJULIAN@ 24 JUN 1314;;English forces are defeated by the Scots at Bannockburn.;https://en.wikipedia.org/wiki/Battle_of_Bannockburn;English History
+@#DJULIAN@ 25 JAN 1327;;Edward II is forced to abdicate and Edward III becomes king.;https://en.wikipedia.org/wiki/Edward_III_of_England;English History
+@#DJULIAN@ 24 MAY 1337;;The Hundred Years War begins between England and France.;https://en.wikipedia.org/wiki/Hundred_Years_War;English History
 1348;;The Black Death reaches England and causes widespread population loss.;https://en.wikipedia.org/wiki/Black_Death_in_England;English History
-18 JUN 1351;;The Statute of Labourers attempts to control wages after the Black Death.;https://en.wikipedia.org/wiki/Statute_of_Labourers_1351;English History
-15 OCT 1362;;English becomes the language of courts under the Pleading in English Act.;https://en.wikipedia.org/wiki/Pleading_in_English_Act_1362;English History
-30 MAY 1381;;The Peasants Revolt begins in Essex and Kent, challenging taxation and social conditions.;https://en.wikipedia.org/wiki/Peasants_Revolt;English History
-30 SEP 1399;;Henry Bolingbroke deposes Richard II and becomes Henry IV.;https://en.wikipedia.org/wiki/Henry_IV_of_England;English History
-25 OCT 1415;;Henry V wins the Battle of Agincourt during the Hundred Years War.;https://en.wikipedia.org/wiki/Battle_of_Agincourt;English History
-1 SEP 1422;;Henry VI becomes king as an infant.;https://en.wikipedia.org/wiki/Henry_VI_of_England;English History
-22 MAY 1455;;The First Battle of St Albans opens the Wars of the Roses between the houses of Lancaster and York.;https://en.wikipedia.org/wiki/Wars_of_the_Roses;English History
-22 AUG 1485;;Henry Tudor defeats Richard III at Bosworth and becomes Henry VII.;https://en.wikipedia.org/wiki/Battle_of_Bosworth_Field;English History
-16 JUN 1487;;The Battle of Stoke Field ends the main fighting of the Wars of the Roses.;https://en.wikipedia.org/wiki/Battle_of_Stoke_Field;English History
-21 APR 1509;;Henry VIII becomes king of England.;https://en.wikipedia.org/wiki/Henry_VIII;English History
-3 NOV 1534;;The Act of Supremacy makes Henry VIII supreme head of the Church of England.;https://en.wikipedia.org/wiki/Acts_of_Supremacy;English History
+@#DJULIAN@ 18 JUN 1351;;The Statute of Labourers attempts to control wages after the Black Death.;https://en.wikipedia.org/wiki/Statute_of_Labourers_1351;English History
+@#DJULIAN@ 15 OCT 1362;;English becomes the language of courts under the Pleading in English Act.;https://en.wikipedia.org/wiki/Pleading_in_English_Act_1362;English History
+@#DJULIAN@ 30 MAY 1381;;The Peasants Revolt begins in Essex and Kent, challenging taxation and social conditions.;https://en.wikipedia.org/wiki/Peasants_Revolt;English History
+@#DJULIAN@ 30 SEP 1399;;Henry Bolingbroke deposes Richard II and becomes Henry IV.;https://en.wikipedia.org/wiki/Henry_IV_of_England;English History
+@#DJULIAN@ 25 OCT 1415;;Henry V wins the Battle of Agincourt during the Hundred Years War.;https://en.wikipedia.org/wiki/Battle_of_Agincourt;English History
+@#DJULIAN@ 1 SEP 1422;;Henry VI becomes king as an infant.;https://en.wikipedia.org/wiki/Henry_VI_of_England;English History
+@#DJULIAN@ 22 MAY 1455;;The First Battle of St Albans opens the Wars of the Roses between the houses of Lancaster and York.;https://en.wikipedia.org/wiki/Wars_of_the_Roses;English History
+@#DJULIAN@ 22 AUG 1485;;Henry Tudor defeats Richard III at Bosworth and becomes Henry VII.;https://en.wikipedia.org/wiki/Battle_of_Bosworth_Field;English History
+@#DJULIAN@ 16 JUN 1487;;The Battle of Stoke Field ends the main fighting of the Wars of the Roses.;https://en.wikipedia.org/wiki/Battle_of_Stoke_Field;English History
+@#DJULIAN@ 21 APR 1509;;Henry VIII becomes king of England.;https://en.wikipedia.org/wiki/Henry_VIII;English History
+@#DJULIAN@ 3 NOV 1534;;The Act of Supremacy makes Henry VIII supreme head of the Church of England.;https://en.wikipedia.org/wiki/Acts_of_Supremacy;English History
 1536;;The Dissolution of the Monasteries transforms religious and social life in England.;https://en.wikipedia.org/wiki/Dissolution_of_the_Monasteries;English History
-4 FEB 1536;;The first Act of Union with Wales brings Wales into the English legal system.;https://en.wikipedia.org/wiki/Laws_in_Wales_Acts_1535_and_1542;English History
-28 JAN 1547;;Edward VI becomes king and Protestant reforms accelerate.;https://en.wikipedia.org/wiki/Edward_VI;English History
-19 JUL 1553;;Mary I becomes queen and restores Roman Catholic worship.;https://en.wikipedia.org/wiki/Mary_I_of_England;English History
-17 NOV 1558;;Elizabeth I becomes queen, beginning the Elizabethan era.;https://en.wikipedia.org/wiki/Elizabeth_I;English History
-26 APR 1564;;William Shakespeare is baptised at Stratford-upon-Avon.;https://en.wikipedia.org/wiki/William_Shakespeare;English History
-8 FEB 1587;;Mary, Queen of Scots is executed at Fotheringhay Castle.;https://en.wikipedia.org/wiki/Mary,_Queen_of_Scots;English History
-8 AUG 1588;;The English fleet attacks the Spanish Armada near Gravelines, helping defeat the invasion attempt.;https://en.wikipedia.org/wiki/Spanish_Armada;English History
-24 MAR 1603;;James VI of Scotland becomes James I of England, uniting the crowns.;https://en.wikipedia.org/wiki/Union_of_the_Crowns;English History
-5 NOV 1605;;The Gunpowder Plot against James I is discovered.;https://en.wikipedia.org/wiki/Gunpowder_Plot;English History
-2 MAY 1611;;The King James Bible is published.;https://en.wikipedia.org/wiki/King_James_Version;English History
-16 SEP 1620;;The Mayflower sails from Plymouth with English separatists bound for North America.;https://en.wikipedia.org/wiki/Mayflower;English History
-27 MAR 1625;;Charles I becomes king of England.;https://en.wikipedia.org/wiki/Charles_I_of_England;English History
-7 JUN 1628;;Parliament presents the Petition of Right to Charles I.;https://en.wikipedia.org/wiki/Petition_of_Right;English History
-22 AUG 1642;;Charles I raises his standard at Nottingham, marking the start of the English Civil War.;https://en.wikipedia.org/wiki/English_Civil_War;English History
-30 JAN 1649;;Charles I is executed and England becomes a commonwealth.;https://en.wikipedia.org/wiki/Execution_of_Charles_I;English History
-16 DEC 1653;;Oliver Cromwell becomes Lord Protector.;https://en.wikipedia.org/wiki/Oliver_Cromwell;English History
-29 MAY 1660;;The monarchy is restored and Charles II becomes king.;https://en.wikipedia.org/wiki/Restoration_(England);English History
-7 JUN 1665;;Deaths from the Great Plague in London rise sharply during the summer of 1665.;https://en.wikipedia.org/wiki/Great_Plague_of_London;English History
-2 SEP 1666;;The Great Fire of London destroys large parts of the city.;https://en.wikipedia.org/wiki/Great_Fire_of_London;English History
-5 NOV 1688;;William of Orange lands at Brixham, a decisive moment in the Glorious Revolution.;https://en.wikipedia.org/wiki/Glorious_Revolution;English History
-16 DEC 1689;;The English Bill of Rights limits royal power and confirms parliamentary rights.;https://www.parliament.uk/about/living-heritage/evolutionofparliament/parliamentaryauthority/revolution/collections1/collections-glorious-revolution/billofrights/;English History
-1 MAY 1707;;The Acts of Union join England and Scotland as the Kingdom of Great Britain.;https://en.wikipedia.org/wiki/Acts_of_Union_1707;English History
-1 AUG 1714;;George I becomes king, beginning the Hanoverian succession.;https://en.wikipedia.org/wiki/George_I_of_Great_Britain;English History
+@#DJULIAN@ 4 FEB 1536;;The first Act of Union with Wales brings Wales into the English legal system.;https://en.wikipedia.org/wiki/Laws_in_Wales_Acts_1535_and_1542;English History
+@#DJULIAN@ 28 JAN 1547;;Edward VI becomes king and Protestant reforms accelerate.;https://en.wikipedia.org/wiki/Edward_VI;English History
+@#DJULIAN@ 19 JUL 1553;;Mary I becomes queen and restores Roman Catholic worship.;https://en.wikipedia.org/wiki/Mary_I_of_England;English History
+@#DJULIAN@ 17 NOV 1558;;Elizabeth I becomes queen, beginning the Elizabethan era.;https://en.wikipedia.org/wiki/Elizabeth_I;English History
+@#DJULIAN@ 26 APR 1564;;William Shakespeare is baptised at Stratford-upon-Avon.;https://en.wikipedia.org/wiki/William_Shakespeare;English History
+@#DJULIAN@ 8 FEB 1587;;Mary, Queen of Scots is executed at Fotheringhay Castle.;https://en.wikipedia.org/wiki/Mary,_Queen_of_Scots;English History
+@#DJULIAN@ 8 AUG 1588;;The English fleet attacks the Spanish Armada near Gravelines, helping defeat the invasion attempt.;https://en.wikipedia.org/wiki/Spanish_Armada;English History
+@#DJULIAN@ 24 MAR 1603;;James VI of Scotland becomes James I of England, uniting the crowns.;https://en.wikipedia.org/wiki/Union_of_the_Crowns;English History
+@#DJULIAN@ 5 NOV 1605;;The Gunpowder Plot against James I is discovered.;https://en.wikipedia.org/wiki/Gunpowder_Plot;English History
+@#DJULIAN@ 2 MAY 1611;;The King James Bible is published.;https://en.wikipedia.org/wiki/King_James_Version;English History
+@#DJULIAN@ 16 SEP 1620;;The Mayflower sails from Plymouth with English separatists bound for North America.;https://en.wikipedia.org/wiki/Mayflower;English History
+@#DJULIAN@ 27 MAR 1625;;Charles I becomes king of England.;https://en.wikipedia.org/wiki/Charles_I_of_England;English History
+@#DJULIAN@ 7 JUN 1628;;Parliament presents the Petition of Right to Charles I.;https://en.wikipedia.org/wiki/Petition_of_Right;English History
+@#DJULIAN@ 22 AUG 1642;;Charles I raises his standard at Nottingham, marking the start of the English Civil War.;https://en.wikipedia.org/wiki/English_Civil_War;English History
+@#DJULIAN@ 30 JAN 1649;;Charles I is executed and England becomes a commonwealth.;https://en.wikipedia.org/wiki/Execution_of_Charles_I;English History
+@#DJULIAN@ 16 DEC 1653;;Oliver Cromwell becomes Lord Protector.;https://en.wikipedia.org/wiki/Oliver_Cromwell;English History
+@#DJULIAN@ 29 MAY 1660;;The monarchy is restored and Charles II becomes king.;https://en.wikipedia.org/wiki/Restoration_(England);English History
+@#DJULIAN@ 7 JUN 1665;;Deaths from the Great Plague in London rise sharply during the summer of 1665.;https://en.wikipedia.org/wiki/Great_Plague_of_London;English History
+@#DJULIAN@ 2 SEP 1666;;The Great Fire of London destroys large parts of the city.;https://en.wikipedia.org/wiki/Great_Fire_of_London;English History
+@#DJULIAN@ 5 NOV 1688;;William of Orange lands at Brixham, a decisive moment in the Glorious Revolution.;https://en.wikipedia.org/wiki/Glorious_Revolution;English History
+@#DJULIAN@ 16 DEC 1689;;The English Bill of Rights limits royal power and confirms parliamentary rights.;https://www.parliament.uk/about/living-heritage/evolutionofparliament/parliamentaryauthority/revolution/collections1/collections-glorious-revolution/billofrights/;English History
+@#DJULIAN@ 1 MAY 1707;;The Acts of Union join England and Scotland as the Kingdom of Great Britain.;https://en.wikipedia.org/wiki/Acts_of_Union_1707;English History
+@#DJULIAN@ 1 AUG 1714;;George I becomes king, beginning the Hanoverian succession.;https://en.wikipedia.org/wiki/George_I_of_Great_Britain;English History
 1721;;Robert Walpole becomes the leading minister and is often regarded as Britain’s first prime minister.;https://en.wikipedia.org/wiki/Robert_Walpole;English History
 15 JAN 1759;;The British Museum opens to the public in London.;https://en.wikipedia.org/wiki/British_Museum;English History
 25 OCT 1760;;George III becomes king.;https://en.wikipedia.org/wiki/George_III;English History

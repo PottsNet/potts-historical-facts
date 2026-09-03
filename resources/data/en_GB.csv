@@ -1,41 +1,41 @@
 #date;end_date;event_text;link;category
-14 OCT 1066;;William Duke of Normandy defeats King Harold II at the Battle of Hastings.;https://www.nationalarchives.gov.uk/education/resources/1066/;British History
-25 DEC 1066;;William I is crowned King of England at Westminster Abbey.;https://www.royal.uk/william-the-conqueror;British History
+@#DJULIAN@ 14 OCT 1066;;William Duke of Normandy defeats King Harold II at the Battle of Hastings.;https://www.nationalarchives.gov.uk/education/resources/1066/;British History
+@#DJULIAN@ 25 DEC 1066;;William I is crowned King of England at Westminster Abbey.;https://www.royal.uk/william-the-conqueror;British History
 1086;;The Domesday survey records landholding and resources across much of England.;https://www.nationalarchives.gov.uk/education/resources/domesday-book/;British History
-29 DEC 1170;;Thomas Becket is murdered in Canterbury Cathedral.;https://www.britannica.com/biography/Saint-Thomas-Becket;British History
-15 JUN 1215;;King John seals Magna Carta at Runnymede.;https://www.parliament.uk/magnacarta/;British History
+@#DJULIAN@ 29 DEC 1170;;Thomas Becket is murdered in Canterbury Cathedral.;https://www.britannica.com/biography/Saint-Thomas-Becket;British History
+@#DJULIAN@ 15 JUN 1215;;King John seals Magna Carta at Runnymede.;https://www.parliament.uk/magnacarta/;British History
 1265;;Simon de Montfort's parliament includes elected representatives from towns and shires.;https://www.parliament.uk/about/living-heritage/evolutionofparliament/originsofparliament/birthofparliament/overview/simondemontfort/;British History
 1282;;Edward I conquers Wales after the death of Llywelyn ap Gruffudd.;https://www.britannica.com/place/Wales/History;British History
 1301;;Edward of Caernarfon becomes Prince of Wales.;https://www.royal.uk/prince-wales;British History
-24 JUN 1314;;Robert the Bruce defeats Edward II at the Battle of Bannockburn.;https://www.nts.org.uk/stories/battle-of-bannockburn-1314;British History
+@#DJULIAN@ 24 JUN 1314;;Robert the Bruce defeats Edward II at the Battle of Bannockburn.;https://www.nts.org.uk/stories/battle-of-bannockburn-1314;British History
 1348;;The Black Death reaches England and causes severe population loss.;https://www.nationalarchives.gov.uk/education/resources/black-death/;British History
 1381;;The Peasants' Revolt challenges taxation and social inequality in England.;https://www.nationalarchives.gov.uk/education/resources/peasants-revolt/;British History
 1455;;The Wars of the Roses begin between the houses of Lancaster and York.;https://www.royal.uk/wars-roses;British History
-22 AUG 1485;;Henry Tudor defeats Richard III at Bosworth and becomes Henry VII.;https://www.royal.uk/henry-vii;British History
+@#DJULIAN@ 22 AUG 1485;;Henry Tudor defeats Richard III at Bosworth and becomes Henry VII.;https://www.royal.uk/henry-vii;British History
 1497;;John Cabot sails from Bristol and reaches North America.;https://www.bristolmuseums.org.uk/stories/john-cabot-and-the-first-english-voyage-to-america/;British History
-31 OCT 1517;;The Protestant Reformation begins in Europe and later reshapes religion in Britain.;https://www.britannica.com/event/Reformation;British History
+@#DJULIAN@ 31 OCT 1517;;The Protestant Reformation begins in Europe and later reshapes religion in Britain.;https://www.britannica.com/event/Reformation;British History
 1534;;The Act of Supremacy makes Henry VIII Supreme Head of the Church of England.;https://www.parliament.uk/about/living-heritage/evolutionofparliament/legislativescrutiny/overview/reformation/;British History
 1536;;The Laws in Wales Acts begin the legal union of Wales and England.;https://www.britannica.com/place/Wales/History;British History
 1536;;The dissolution of the monasteries begins under Henry VIII.;https://www.nationalarchives.gov.uk/education/resources/dissolution-of-the-monasteries/;British History
 1549;;The first Book of Common Prayer is introduced in England.;https://www.bl.uk/collection-items/the-book-of-common-prayer-1549;British History
-17 NOV 1558;;Elizabeth I becomes Queen of England.;https://www.royal.uk/elizabeth-i;British History
+@#DJULIAN@ 17 NOV 1558;;Elizabeth I becomes Queen of England.;https://www.royal.uk/elizabeth-i;British History
 1588;;The Spanish Armada is defeated.;https://www.nationalarchives.gov.uk/education/resources/elizabeth-monarchy/spanish-armada/;British History
-24 MAR 1603;;James VI of Scotland becomes James I of England and unites the crowns.;https://www.royal.uk/james-i-and-vi;British History
-5 NOV 1605;;The Gunpowder Plot to blow up Parliament is uncovered.;https://www.parliament.uk/about/living-heritage/evolutionofparliament/parliamentaryauthority/revolution/overview/gunpowderplot/;British History
+@#DJULIAN@ 24 MAR 1603;;James VI of Scotland becomes James I of England and unites the crowns.;https://www.royal.uk/james-i-and-vi;British History
+@#DJULIAN@ 5 NOV 1605;;The Gunpowder Plot to blow up Parliament is uncovered.;https://www.parliament.uk/about/living-heritage/evolutionofparliament/parliamentaryauthority/revolution/overview/gunpowderplot/;British History
 1611;;The King James Bible is published.;https://www.bl.uk/collection-items/king-james-bible-1611;British History
-16 SEP 1620;;The Mayflower departs Plymouth carrying English colonists to North America.;https://www.mayflower400uk.org/education/the-mayflower-story/;British History
-22 AUG 1642;;The English Civil War begins when Charles I raises his standard at Nottingham.;https://www.nationalarchives.gov.uk/education/resources/civil-war/;British History
-30 JAN 1649;;Charles I is executed outside the Banqueting House in London.;https://www.royal.uk/charles-i;British History
+@#DJULIAN@ 16 SEP 1620;;The Mayflower departs Plymouth carrying English colonists to North America.;https://www.mayflower400uk.org/education/the-mayflower-story/;British History
+@#DJULIAN@ 22 AUG 1642;;The English Civil War begins when Charles I raises his standard at Nottingham.;https://www.nationalarchives.gov.uk/education/resources/civil-war/;British History
+@#DJULIAN@ 30 JAN 1649;;Charles I is executed outside the Banqueting House in London.;https://www.royal.uk/charles-i;British History
 1653;;Oliver Cromwell becomes Lord Protector.;https://www.parliament.uk/about/living-heritage/evolutionofparliament/parliamentaryauthority/revolution/overview/civilwar/;British History
-29 MAY 1660;;The monarchy is restored and Charles II enters London.;https://www.royal.uk/charles-ii;British History
+@#DJULIAN@ 29 MAY 1660;;The monarchy is restored and Charles II enters London.;https://www.royal.uk/charles-ii;British History
 1665;;The Great Plague kills thousands in London.;https://www.nationalarchives.gov.uk/education/resources/significant-events/great-plague/;British History
-2 SEP 1666;;The Great Fire of London begins in Pudding Lane.;https://www.nationalarchives.gov.uk/education/resources/great-fire-london/;British History
+@#DJULIAN@ 2 SEP 1666;;The Great Fire of London begins in Pudding Lane.;https://www.nationalarchives.gov.uk/education/resources/great-fire-london/;British History
 1688;;The Glorious Revolution removes James II and brings William and Mary to the throne.;https://www.parliament.uk/about/living-heritage/evolutionofparliament/parliamentaryauthority/revolution/overview/gloriousrevolution/;British History
-16 DEC 1689;;The Bill of Rights receives royal assent and limits royal power.;https://www.parliament.uk/about/living-heritage/evolutionofparliament/parliamentaryauthority/revolution/collections1/collections-glorious-revolution/billofrights/;British History
-1 MAY 1707;;The Acts of Union create the Kingdom of Great Britain.;https://www.parliament.uk/about/living-heritage/evolutionofparliament/legislativescrutiny/act-of-union-1707/;British History
+@#DJULIAN@ 16 DEC 1689;;The Bill of Rights receives royal assent and limits royal power.;https://www.parliament.uk/about/living-heritage/evolutionofparliament/parliamentaryauthority/revolution/collections1/collections-glorious-revolution/billofrights/;British History
+@#DJULIAN@ 1 MAY 1707;;The Acts of Union create the Kingdom of Great Britain.;https://www.parliament.uk/about/living-heritage/evolutionofparliament/legislativescrutiny/act-of-union-1707/;British History
 1715;;A Jacobite rising attempts to restore the Stuart line.;https://www.nationalarchives.gov.uk/education/resources/jacobite-1745/;British History
 1745;;The Jacobite rising led by Charles Edward Stuart begins.;https://www.nationalarchives.gov.uk/education/resources/jacobite-1745/;British History
-16 APR 1746;;The Battle of Culloden ends the Jacobite rising.;https://www.nts.org.uk/stories/the-battle-of-culloden;British History
+@#DJULIAN@ 16 APR 1746;;The Battle of Culloden ends the Jacobite rising.;https://www.nts.org.uk/stories/the-battle-of-culloden;British History
 1752;;Britain adopts the Gregorian calendar.;https://www.rmg.co.uk/stories/topics/when-did-britain-change-gregorian-calendar;British History
 1756;;The Seven Years' War begins and expands British imperial conflict.;https://www.britannica.com/event/Seven-Years-War;British History
 1764;;James Hargreaves invents the spinning jenny, accelerating textile production.;https://www.scienceandindustrymuseum.org.uk/objects-and-stories/richard-arkwright-water-frame;British History

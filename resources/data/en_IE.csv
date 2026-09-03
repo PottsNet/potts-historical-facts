@@ -1,18 +1,18 @@
 #date;end_date;event_text;link;category
-23 APR 1014;;Brian Boru is killed after the Battle of Clontarf.;https://en.wikipedia.org/wiki/Battle_of_Clontarf;Irish History
-1 MAY 1169;;Anglo-Norman forces arrive in Ireland, beginning a new phase of conquest and settlement.;https://en.wikipedia.org/wiki/Norman_invasion_of_Ireland;Irish History
-17 OCT 1171;;Henry II lands in Ireland and asserts English royal authority.;https://en.wikipedia.org/wiki/Norman_invasion_of_Ireland;Irish History
-20 JUN 1210;;King John campaigns in Ireland and strengthens royal administration.;https://en.wikipedia.org/wiki/History_of_Ireland_(1169–1536);Irish History
+@#DJULIAN@ 23 APR 1014;;Brian Boru is killed after the Battle of Clontarf.;https://en.wikipedia.org/wiki/Battle_of_Clontarf;Irish History
+@#DJULIAN@ 1 MAY 1169;;Anglo-Norman forces arrive in Ireland, beginning a new phase of conquest and settlement.;https://en.wikipedia.org/wiki/Norman_invasion_of_Ireland;Irish History
+@#DJULIAN@ 17 OCT 1171;;Henry II lands in Ireland and asserts English royal authority.;https://en.wikipedia.org/wiki/Norman_invasion_of_Ireland;Irish History
+@#DJULIAN@ 20 JUN 1210;;King John campaigns in Ireland and strengthens royal administration.;https://en.wikipedia.org/wiki/History_of_Ireland_(1169–1536);Irish History
 1297;;The first Irish parliament of the Lordship of Ireland is established.;https://en.wikipedia.org/wiki/Parliament_of_Ireland;Irish History
-26 MAY 1315;;Edward Bruce lands in Ireland, beginning a campaign against English power.;https://en.wikipedia.org/wiki/Bruce_campaign_in_Ireland;Irish History
+@#DJULIAN@ 26 MAY 1315;;Edward Bruce lands in Ireland, beginning a campaign against English power.;https://en.wikipedia.org/wiki/Bruce_campaign_in_Ireland;Irish History
 1348;;The Black Death reaches Ireland.;https://en.wikipedia.org/wiki/Black_Death_in_Ireland;Irish History
-1 FEB 1366;;The Statutes of Kilkenny try to separate English settlers from Gaelic Irish society.;https://en.wikipedia.org/wiki/Statutes_of_Kilkenny;Irish History
-1 DEC 1494;;Poynings Law increases English control over the Irish parliament.;https://en.wikipedia.org/wiki/Poynings_Law;Irish History
-11 JUN 1534;;Silken Thomas publicly renounces allegiance to Henry VIII, beginning the Kildare rebellion.;https://en.wikipedia.org/wiki/Silken_Thomas;Irish History
-18 JUN 1541;;Henry VIII is declared King of Ireland.;https://en.wikipedia.org/wiki/Crown_of_Ireland_Act_1542;Irish History
+@#DJULIAN@ 1 FEB 1366;;The Statutes of Kilkenny try to separate English settlers from Gaelic Irish society.;https://en.wikipedia.org/wiki/Statutes_of_Kilkenny;Irish History
+@#DJULIAN@ 1 DEC 1494;;Poynings Law increases English control over the Irish parliament.;https://en.wikipedia.org/wiki/Poynings_Law;Irish History
+@#DJULIAN@ 11 JUN 1534;;Silken Thomas publicly renounces allegiance to Henry VIII, beginning the Kildare rebellion.;https://en.wikipedia.org/wiki/Silken_Thomas;Irish History
+@#DJULIAN@ 18 JUN 1541;;Henry VIII is declared King of Ireland.;https://en.wikipedia.org/wiki/Crown_of_Ireland_Act_1542;Irish History
 1556;;The plantation of Laois and Offaly begins under Mary I.;https://en.wikipedia.org/wiki/Plantations_of_Ireland;Irish History
-1 JUN 1569;;The First Desmond Rebellion begins in Munster.;https://en.wikipedia.org/wiki/First_Desmond_Rebellion;Irish History
-17 JUL 1579;;The Second Desmond Rebellion begins and later ends with major confiscations in Munster.;https://en.wikipedia.org/wiki/Second_Desmond_Rebellion;Irish History
+@#DJULIAN@ 1 JUN 1569;;The First Desmond Rebellion begins in Munster.;https://en.wikipedia.org/wiki/First_Desmond_Rebellion;Irish History
+@#DJULIAN@ 17 JUL 1579;;The Second Desmond Rebellion begins and later ends with major confiscations in Munster.;https://en.wikipedia.org/wiki/Second_Desmond_Rebellion;Irish History
 1 FEB 1594;;The Nine Years War begins between Gaelic Irish lords and English government forces.;https://en.wikipedia.org/wiki/Nine_Years_War_(Ireland);Irish History
 1601;;Irish and Spanish forces are defeated at the Battle of Kinsale.;https://en.wikipedia.org/wiki/Siege_of_Kinsale;Irish History
 14 SEP 1607;;The Flight of the Earls removes key Gaelic leaders from Ireland.;https://en.wikipedia.org/wiki/Flight_of_the_Earls;Irish History

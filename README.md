@@ -113,3 +113,7 @@ Version 1.1.2 also keeps historical category headings separate from their age la
 Italian collections (`it_IT.csv`, or standard `it_IT_data_v1_0.csv`) use Età, Fonte, circa, anno/anni, mese/mesi and giorno/giorni. The module settings and History selector include Italian translations when the website language is Italian. Existing English Italy content (`en_IT.csv`) is retained unchanged; translated Italian event text must be supplied in a separate Italian CSV. Existing language-aware selection automatically uses an available `it_IT.csv` for Italian visitors selecting Italy. Standard Gramps files remain separate selections.
 
 Historical age labels are identified explicitly for Potts Fact Ages, preventing a second English age on Italian collections. Any already-added Fact Ages badge is removed only in a cell with a Historical Facts age label.
+
+## Calendar calculations — 1.1.4
+
+Explicit Julian dates are validated using Julian leap years and converted internally to Gregorian-equivalent comparison dates. Displayed CSV/GEDCOM values and their calendar markers are retained. Unmarked dates and ISO dates retain Gregorian interpretation; no calendar is inferred from country or region. Webtrees date-object fallbacks use absolute Julian day numbers when available. No historical dataset annotations are changed.

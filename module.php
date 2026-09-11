@@ -25,7 +25,7 @@ use Psr\Http\Message\ServerRequestInterface;
 return new class extends AbstractModule implements ModuleCustomInterface, ModuleHistoricEventsInterface, ModuleGlobalInterface, ModuleBlockInterface, ModuleConfigInterface {
     use ModuleConfigTrait;
 
-    private const CUSTOM_VERSION = '1.1.3';
+    private const CUSTOM_VERSION = '1.1.4';
     private const LATEST_VERSION_URL = 'https://raw.githubusercontent.com/PottsNet/potts-historical-facts/main/latest-version.txt';
 
     private const REGION_COOKIE = 'potts_history_region';
@@ -2049,6 +2049,24 @@ HTML;
                 return null;
             }
 
+            if (method_exists($date, 'minimumJulianDay') && method_exists($date, 'maximumJulianDay')) {
+                $minimum = (int) $date->minimumJulianDay();
+                $maximum = (int) $date->maximumJulianDay();
+                $jd = $use_maximum ? $maximum : $minimum;
+                if ($minimum <= 0 || $maximum < $minimum) {
+                    return null;
+                }
+                $absolute = (new \DateTimeImmutable('1970-01-01'))->modify(sprintf('%+d days', $jd - 2440588));
+                return [
+                    'date' => $absolute,
+                    'year' => (int) $absolute->format('Y'),
+                    'month' => (int) $absolute->format('n'),
+                    'day' => (int) $absolute->format('j'),
+                    'precision' => 'day',
+                    'approx' => $minimum !== $maximum,
+                ];
+            }
+
             if (method_exists($date, 'display')) {
                 $display = html_entity_decode(strip_tags((string) $date->display()), ENT_QUOTES | ENT_HTML5, 'UTF-8');
                 $parsed = $this->parseHistoricalDate($display);
@@ -2119,6 +2137,29 @@ HTML;
         return isset($match[3]) ? $day . ' ' . $month_year : $month_year;
     }
 
+    /** Convert a validated source date to a common Gregorian comparison date. */
+    private function historicalCalendarDate(int $year, int $month, int $day, bool $julian): ?\DateTimeImmutable
+    {
+        if ($year < 1 || $year > 9999 || $month < 1 || $month > 12 || $day < 1) {
+            return null;
+        }
+        if (!$julian) {
+            return checkdate($month, $day, $year)
+                ? new \DateTimeImmutable(sprintf('%04d-%02d-%02d', $year, $month, $day))
+                : null;
+        }
+        $lengths = [1 => 31, $year % 4 === 0 ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        if ($day > $lengths[$month]) {
+            return null;
+        }
+        // Julian/Gregorian offset changes after February in century years.
+        // Start at day one so Julian-only 29 February is never Gregorian-validated.
+        $offset_year = $month <= 2 ? $year - 1 : $year;
+        $offset = intdiv($offset_year, 100) - intdiv($offset_year, 400) - 2;
+        return (new \DateTimeImmutable(sprintf('%04d-%02d-01', $year, $month)))
+            ->modify(sprintf('%+d days', $day - 1 + $offset));
+    }
+
     private function parseHistoricalDate(string $date): ?array
     {
         $original = $this->normaliseHistoricalCsvDate($date);
@@ -2127,8 +2168,13 @@ HTML;
             return null;
         }
 
+        $julian = false;
         $text = strtoupper($original);
-        $text = str_replace(['@#DGREGORIAN@', '@#DJULIAN@', ',', '.'], '', $text);
+        if (preg_match('/^@#D(GREGORIAN|JULIAN)@\s*(.+)$/', $text, $match) === 1) {
+            $julian = $match[1] === 'JULIAN';
+            $text = trim($match[2]);
+        }
+        $text = str_replace([',', '.'], '', $text);
         $text = trim(preg_replace('/\s+/', ' ', $text) ?? $text);
 
         $approx = false;
@@ -2153,6 +2199,11 @@ HTML;
             $text = trim($match[1]);
         }
 
+        if (preg_match('/^@#D(GREGORIAN|JULIAN)@\s*(.+)$/', $text, $match) === 1) {
+            $julian = $match[1] === 'JULIAN';
+            $text = trim($match[2]);
+        }
+
         $months = [
             'JAN' => 1, 'JANUARY' => 1,
             'FEB' => 2, 'FEBRUARY' => 2,
@@ -2174,9 +2225,9 @@ HTML;
             $month = $months[$match[2]] ?? null;
             $year = (int) $match[3];
 
-            if ($month !== null && checkdate($month, $day, $year)) {
+            if ($month !== null && ($absolute = $this->historicalCalendarDate($year, $month, $day, $julian)) !== null) {
                 return [
-                    'date'      => new \DateTimeImmutable(sprintf('%04d-%02d-%02d', $year, $month, $day)),
+                    'date'      => $absolute,
                     'year'      => $year,
                     'month'     => $month,
                     'day'       => $day,
@@ -2191,9 +2242,9 @@ HTML;
             $month = $months[$match[1]] ?? null;
             $year = (int) $match[2];
 
-            if ($month !== null && checkdate($month, 1, $year)) {
+            if ($month !== null && ($absolute = $this->historicalCalendarDate($year, $month, 1, $julian)) !== null) {
                 return [
-                    'date'      => new \DateTimeImmutable(sprintf('%04d-%02d-01', $year, $month)),
+                    'date'      => $absolute,
                     'year'      => $year,
                     'month'     => $month,
                     'day'       => 1,
@@ -2206,9 +2257,13 @@ HTML;
         // 1966
         if (preg_match('/^(\d{4})$/', $text, $match) === 1) {
             $year = (int) $match[1];
+            $absolute = $this->historicalCalendarDate($year, 1, 1, $julian);
+            if ($absolute === null) {
+                return null;
+            }
 
             return [
-                'date'      => new \DateTimeImmutable(sprintf('%04d-01-01', $year)),
+                'date'      => $absolute,
                 'year'      => $year,
                 'month'     => 1,
                 'day'       => 1,

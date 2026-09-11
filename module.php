@@ -25,7 +25,7 @@ use Psr\Http\Message\ServerRequestInterface;
 return new class extends AbstractModule implements ModuleCustomInterface, ModuleHistoricEventsInterface, ModuleGlobalInterface, ModuleBlockInterface, ModuleConfigInterface {
     use ModuleConfigTrait;
 
-    private const CUSTOM_VERSION = '1.1.0';
+    private const CUSTOM_VERSION = '1.1.2';
     private const LATEST_VERSION_URL = 'https://raw.githubusercontent.com/PottsNet/potts-historical-facts/main/latest-version.txt';
 
     private const REGION_COOKIE = 'potts_history_region';
@@ -549,7 +549,7 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
         const fragment = document.createDocumentFragment();
 
         const titleElement = document.createElement('span');
-        titleElement.className = 'potts-history-event-type';
+        titleElement.className = 'potts-history-event-type wt-fact-label';
         titleElement.textContent = title;
         fragment.appendChild(titleElement);
 
@@ -559,6 +559,33 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
         fragment.appendChild(ageElement);
 
         node.parentNode.replaceChild(fragment, node);
+    }
+
+    function repairHistoricalHeadings(root) {
+        // The theme can format our marker first. Mark its category span too,
+        // so heading discovery never falls back to category + age textContent.
+        const scope = root && root.closest ? (root.closest('th, td') || root) : root;
+        if (!scope || !scope.querySelectorAll) {
+            return;
+        }
+        const titles = Array.from(scope.querySelectorAll('.potts-history-event-type'));
+        if (scope.matches && scope.matches('.potts-history-event-type')) {
+            titles.push(scope);
+        }
+        titles.forEach(function (title) {
+            title.classList.add('wt-fact-label');
+            const cell = title.closest('th, td');
+            const category = (title.textContent || '').trim();
+            if (!cell || !category) {
+                return;
+            }
+            // Only repair the theme's generated heading for this historical fact.
+            // Keep its icon, controls and separate age element intact.
+            const heading = cell.querySelector('.potts-event-title-panel > .potts-event-title-text');
+            if (heading && (heading.textContent || '').trim().toLowerCase() !== category.toLowerCase()) {
+                heading.textContent = category;
+            }
+        });
     }
 
     function formatHistoryAgeLabels(root) {
@@ -573,6 +600,7 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
         }
 
         nodes.forEach(replaceTextNode);
+        repairHistoricalHeadings(root);
     }
 
     function selectedLabels() {
@@ -951,6 +979,7 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
         const observer = new MutationObserver(function (mutations) {
             let needsPlacement = enableGlobalSelector && !document.querySelector('[data-potts-history-selector="1"]');
             mutations.forEach(function (mutation) {
+                repairHistoricalHeadings(mutation.target);
                 mutation.addedNodes.forEach(function (node) {
                     if (node.nodeType === Node.TEXT_NODE) {
                         replaceTextNode(node);
@@ -1232,6 +1261,12 @@ HTML;
             return I18N::translate($labels[$code]);
         }
 
+        if (preg_match('/^([a-z]{2})_([A-Z]{2,3})_data_v(\d+)_(\d+)$/', $code, $match) === 1) {
+            $region = $labels['en_' . $match[2]] ?? $match[2];
+
+            return I18N::translate($region) . ' (' . $match[1] . ', Gramps v' . $match[3] . '.' . $match[4] . ')';
+        }
+
         if (preg_match('/^([a-z]{2})_([A-Z]{2,3})$/', $code, $match) === 1) {
             return strtoupper($match[2]) . ' (' . strtolower($match[1]) . ')';
         }
@@ -1283,6 +1318,87 @@ HTML;
     private function escape(string $text): string
     {
         return htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    }
+
+    /** @return array{mode:string,codes:list<string>} */
+    public function historicalContextSelectionForBiography(): array
+    {
+        $override = $this->historyCollectionsOverride();
+
+        if ($override === null) {
+            return ['mode' => 'auto', 'codes' => []];
+        }
+
+        return ['mode' => 'custom', 'codes' => $override];
+    }
+
+    /**
+     * Provide clean historical rows to Potts Biography without exposing this
+     * module's internal folders, preferences or cookie implementation.
+     *
+     * @param list<string> $collection_codes Empty means the visitor/site selection.
+     * @return list<array{date:string,end_date:string,event_text:string,link:string,category:string,collection_code:string}>
+     */
+    public function historicalContextRowsForBiography(string $language_tag, array $collection_codes = []): array
+    {
+        $enabled = array_keys($this->enabledHistoryCollections());
+
+        if ($collection_codes === []) {
+            $codes = $this->historyCollectionsOverride() ?? $this->defaultHistoryCollections();
+        } else {
+            $codes = [];
+
+            foreach ($collection_codes as $code) {
+                $code = $this->canonicalHistorySelectionCode($this->normaliseHistoryCode((string) $code));
+
+                if ($code !== '' && in_array($code, $enabled, true) && !in_array($code, $codes, true)) {
+                    $codes[] = $code;
+                }
+            }
+        }
+
+        $rows = [];
+        $seen = [];
+
+        foreach ($codes as $code) {
+            $file = $this->csvPathForHistoryCodeForLanguage($code, $language_tag);
+
+            if ($file === null) {
+                continue;
+            }
+
+            foreach ($this->loadCsvFile($file) as $row) {
+                $date = trim((string) ($row['date'] ?? ''));
+                $end_date = trim((string) ($row['end_date'] ?? ''));
+                $event_text = $this->cleanGedcomText((string) ($row['event_text'] ?? ''));
+
+                if ($date === '' || $event_text === '' || $this->parseHistoricalDate($date) === null) {
+                    continue;
+                }
+
+                if ($end_date !== '' && $this->parseHistoricalDate($end_date) === null) {
+                    continue;
+                }
+
+                $key = strtolower($date . '|' . $end_date . '|' . $event_text);
+
+                if (isset($seen[$key])) {
+                    continue;
+                }
+
+                $seen[$key] = true;
+                $rows[] = [
+                    'date' => $date,
+                    'end_date' => $end_date,
+                    'event_text' => $event_text,
+                    'link' => $this->safeSourceLink((string) ($row['link'] ?? '')),
+                    'category' => $this->cleanGedcomText((string) ($row['category'] ?? '')),
+                    'collection_code' => $code,
+                ];
+            }
+        }
+
+        return $rows;
     }
 
     public function historicEventsForIndividual(Individual $individual): Collection
@@ -1604,7 +1720,13 @@ HTML;
 
         $parts = explode('_', $code);
 
-        if (count($parts) >= 2) {
+        // Preserve the full Gramps filename as a separate collection identifier.
+        // Do not silently turn unknown suffixes into an existing locale collection.
+        if (count($parts) > 2) {
+            return $code;
+        }
+
+        if (count($parts) === 2) {
             return strtolower($parts[0]) . '_' . strtoupper($parts[1]);
         }
 
@@ -1641,7 +1763,8 @@ HTML;
 
     private function isValidHistoryCode(string $code): bool
     {
-        return preg_match('/^[a-z]{2}(?:_[A-Z]{2,3})?$/', $code) === 1;
+        return preg_match('/^[a-z]{2}(?:_[A-Z]{2,3})?$/', $code) === 1
+            || preg_match('/^[a-z]{2}_[A-Z]{2,3}_data_v\d+_\d+$/', $code) === 1;
     }
 
     private function csvPathForHistoryCode(string $code): ?string
@@ -1753,8 +1876,8 @@ HTML;
                 }
 
                 $rows[] = [
-                    'date'       => $columns[0] ?? '',
-                    'end_date'   => $columns[1] ?? '',
+                    'date'       => $this->normaliseHistoricalCsvDate($columns[0] ?? ''),
+                    'end_date'   => $this->normaliseHistoricalCsvDate($columns[1] ?? ''),
                     'event_text' => $columns[2] ?? '',
                     'link'       => $columns[3] ?? '',
                     'category'   => $columns[4] ?? '',
@@ -1914,9 +2037,36 @@ HTML;
         return null;
     }
 
+    /**
+     * Convert Gregorian ISO CSV dates to GEDCOM without inventing precision.
+     * Leave existing GEDCOM and invalid input untouched; the parser validates it.
+     */
+    private function normaliseHistoricalCsvDate(string $date): string
+    {
+        $date = trim($date);
+
+        if (preg_match('/^(\d{4})-(\d{2})(?:-(\d{2}))?$/', $date, $match) !== 1) {
+            return $date;
+        }
+
+        $year = (int) $match[1];
+        $month = (int) $match[2];
+        $day = isset($match[3]) ? (int) $match[3] : 1;
+
+        if (!checkdate($month, $day, $year)) {
+            return $date;
+        }
+
+        $months = [1 => 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
+            'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+        $month_year = $months[$month] . ' ' . $match[1];
+
+        return isset($match[3]) ? $day . ' ' . $month_year : $month_year;
+    }
+
     private function parseHistoricalDate(string $date): ?array
     {
-        $original = trim($date);
+        $original = $this->normaliseHistoricalCsvDate($date);
 
         if ($original === '') {
             return null;

@@ -18,6 +18,7 @@ Potts Historical Facts displays sourced regional history alongside an individual
 - Provides translatable module text through webtrees custom translations.
 - Supports keyboard navigation and Escape handling in the header selector.
 - Provides update information for webtrees and Custom Module Manager through `latest-version.txt`.
+- Provides a public, read-only historical-row interface for optional use by Potts Biography.
 
 ## Requirements
 
@@ -56,7 +57,9 @@ Bundled CSV files are stored in `resources/data` and use semicolon-separated col
 
 `#date;end_date;event_text;link;category`
 
-Dates use GEDCOM-style English month abbreviations and four-digit CE years. Supported forms include `1867`, `JAN 1867`, `26 JAN 1867` and optional start/end ranges.
+Dates accept Gregorian ISO forms `1867`, `1867-01` and `1867-01-26`, as well as existing GEDCOM-style English month forms `JAN 1867` and `26 JAN 1867`. Both date columns accept these forms. ISO month and day values are validated and converted to GEDCOM before historical events or Biography rows are produced; year/month precision is preserved. Lines beginning with `#` are ignored.
+
+Version 1.1.2 also accepts standard Gramps filenames such as `de_DE_data_v1_0.csv` and `da_DK_data_v1_0.csv` in the persistent data folder. Keep the conventional filename casing. Each is a separate selectable collection, labelled with its region, language and format version. It does not replace or merge with `de_DE.csv` or `en_DE.csv`, and is not automatically substituted when a visitor changes language. A persistent file overrides a bundled file with the same full filename. Existing short filenames and language-aware selections continue to work. Metadata lines are ignored; metadata interpretation, event IDs and `Today` are not added by this build.
 
 Every bundled row includes an HTTP(S) source link. Administrators editing or adding datasets should retain the same five-column structure and use valid web addresses.
 
@@ -79,6 +82,10 @@ Filename examples:
 
 Where matching language-specific files exist for the same region, the module uses the file that best matches the visitor's selected language. For example, if the Netherlands collection is selected, a visitor using Dutch will receive `nl_NL.csv`; other visitors will receive `en_NL.csv` where available.
 
+## Potts Biography integration
+
+Version 1.1.1 adds a public provider used by Potts Biography 1.0.0-rc.5 and later. The provider respects this module's enabled collections, site defaults, visitor selections, language-aware CSV choice and persistent custom data. No genealogy data is sent outside webtrees and neither module requires the other to be installed.
+
 ## Compatibility
 
 Potts Historical Facts works with standard webtrees themes. Potts Modern adds complementary presentation styling but is not required.
@@ -98,3 +105,5 @@ GPL-3.0-or-later. See `LICENSE`.
 ## Support
 
 Report bugs and feature requests through GitHub Issues and include your webtrees version, PHP version, selected theme and screenshots where useful.
+
+Version 1.1.2 also keeps historical category headings separate from their age labels when Potts Modern builds its event title panels.

@@ -1,27 +1,19 @@
 # Release notes
 
-## 1.1.0
+## 1.1.2
 
-This is the first regular 1.1.0 release of Potts Historical Facts.
+- Added Gregorian ISO dates (`YYYY`, `YYYY-MM`, `YYYY-MM-DD`) alongside existing GEDCOM dates. Month/day values are validated and converted to GEDCOM before event generation and Biography output.
+- Added separately selectable standard Gramps filenames such as `de_DE_data_v1_0.csv`, preserving the full collection identifier and persistent-file precedence.
+- Retained support for `#` comment lines. Metadata interpretation, `Today` and event IDs are not part of this change.
+- Fixed category headings absorbing or repeating the age in Potts Modern.
+- Included the live 1.1.1 Biography provider while preserving main's German collection, calendar annotations, data corrections, settings breadcrumbs and compact History button.
 
-This release responds to feedback from beta testing and is intended to be suitable for normal installation through webtrees and Custom Module Manager.
+### Validation
 
-### Added
+The date, standard-filename and age-heading changes were tested on the maintainer's live site using the 1.1.2 release candidates. The reconciled source was checked separately in PHP against the combined bundled datasets, with DOM checks for the heading repair. Existing main-branch data files and settings view are preserved byte-for-byte.
 
-- Added language-aware CSV selection. If a selected collection has a matching CSV for the visitor's webtrees language, that language file is used automatically. For example, the Netherlands collection uses `nl_NL.csv` for Dutch visitors and `en_NL.csv` for other visitors.
-- Added support for persistent custom CSV files in the webtrees data folder: `data/modules/potts_historical_facts/data/`.
-- Added a settings-page note showing where administrators can place custom CSV files.
-- Added translatable module text via webtrees custom translations, with starter translations for Dutch, German, French, Polish and Portuguese.
-- Added an update URL using `latest-version.txt` so webtrees and Custom Module Manager can recognise future updates.
+### Upgrade
 
-### Changed
+Back up the current module folder, extract the installation ZIP and replace matching files in `modules_v4/potts_historical_facts`. Clear the webtrees cache. Existing settings and persistent data-folder CSV files are retained. Remove any synthetic test CSV files used during release-candidate testing.
 
-- Promoted the module from beta/pre-release to a regular stable release.
-- The Netherlands collection is now presented as a single collection where the module can choose the best matching language file.
-- Custom CSV files in the webtrees data folder take priority over bundled CSV files with the same name.
-
-### Preserved
-
-- Existing multi-collection selection remains available.
-- Existing visitor cookies and older single-region settings are still handled where possible.
-- Bundled CSV files remain available for all existing regions and collections.
+The calendar-transition audit (#7) and Italian localisation (#9) remain open. This release does not claim complete support for every feature of the evolving shared Gramps format.

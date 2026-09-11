@@ -1,19 +1,14 @@
 # Release notes
 
-## 1.1.2
+## 1.1.3
 
-- Added Gregorian ISO dates (`YYYY`, `YYYY-MM`, `YYYY-MM-DD`) alongside existing GEDCOM dates. Month/day values are validated and converted to GEDCOM before event generation and Biography output.
-- Added separately selectable standard Gramps filenames such as `de_DE_data_v1_0.csv`, preserving the full collection identifier and persistent-file precedence.
-- Retained support for `#` comment lines. Metadata interpretation, `Today` and event IDs are not part of this change.
-- Fixed category headings absorbing or repeating the age in Potts Modern.
-- Included the live 1.1.1 Biography provider while preserving main's German collection, calendar annotations, data corrections, settings breadcrumbs and compact History button.
+- Added Italian module settings and History-selector translations.
+- Italian-language collections now use Età, Fonte, circa and singular/plural anno/anni, mese/mesi and giorno/giorni.
+- Prevented duplicate English ages from Potts Fact Ages on historical events with a localised age label.
+- Preserved English Italy content and existing language-aware CSV selection. An administrator-supplied it_IT.csv is supported; no translated Italian historical dataset is bundled.
 
-### Validation
+### Validation and upgrade
 
-The date, standard-filename and age-heading changes were tested on the maintainer's live site using the 1.1.2 release candidates. The reconciled source was checked separately in PHP against the combined bundled datasets, with DOM checks for the heading repair. Existing main-branch data files and settings view are preserved byte-for-byte.
+The maintainer accepted live checks showing Italian event ages, Fonte links and removal of duplicate English ages. Italian settings-screen wording was not separately verified on the live site. Automated PHP and DOM checks cover translation keys, placeholders, age forms, source handling, language selection and the duplicate-age guard.
 
-### Upgrade
-
-Back up the current module folder, extract the installation ZIP and replace matching files in `modules_v4/potts_historical_facts`. Clear the webtrees cache. Existing settings and persistent data-folder CSV files are retained. Remove any synthetic test CSV files used during release-candidate testing.
-
-The calendar-transition audit (#7) and Italian localisation (#9) remain open. This release does not claim complete support for every feature of the evolving shared Gramps format.
+Back up the existing module, replace matching files in modules_v4/potts_historical_facts and clear the webtrees cache. Persistent CSV files and settings are retained. Remove synthetic test CSV files after testing. The calendar audit (#7) remains open.

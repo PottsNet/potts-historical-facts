@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.3
+
+- Added Italian module settings and History-selector translations.
+- Italian-language collections now use Età, Fonte, circa and singular/plural anno/anni, mese/mesi and giorno/giorni.
+- Prevented duplicate English ages from Potts Fact Ages on historical events with a localised age label.
+- Preserved English Italy content and existing language-aware CSV selection. An administrator-supplied it_IT.csv is supported; no translated Italian historical dataset is bundled.
+
 ## 1.1.2
 
 - Added Gregorian ISO dates (`YYYY`, `YYYY-MM`, `YYYY-MM-DD`) alongside existing GEDCOM dates. Month/day values are validated and converted to GEDCOM before event generation and Biography output.

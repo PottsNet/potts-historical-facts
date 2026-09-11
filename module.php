@@ -25,7 +25,7 @@ use Psr\Http\Message\ServerRequestInterface;
 return new class extends AbstractModule implements ModuleCustomInterface, ModuleHistoricEventsInterface, ModuleGlobalInterface, ModuleBlockInterface, ModuleConfigInterface {
     use ModuleConfigTrait;
 
-    private const CUSTOM_VERSION = '1.1.2';
+    private const CUSTOM_VERSION = '1.1.3';
     private const LATEST_VERSION_URL = 'https://raw.githubusercontent.com/PottsNet/potts-historical-facts/main/latest-version.txt';
 
     private const REGION_COOKIE = 'potts_history_region';
@@ -128,6 +128,45 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
                 'Historical facts' => 'Historische feiten',
                 'Age' => 'Leeftijd',
                 'Source' => 'Bron',
+            ],
+            'it' => [
+                'Potts Historical Facts' => 'Fatti storici Potts',
+                'Displays historical facts from CSV files using visitor-selected historical fact collections available from every page.' => 'Mostra fatti storici da file CSV utilizzando raccolte selezionate dai visitatori e disponibili da ogni pagina.',
+                'Potts Historical Facts settings' => 'Impostazioni dei fatti storici Potts',
+                'The Potts Historical Facts settings have been saved.' => 'Le impostazioni dei fatti storici Potts sono state salvate.',
+                'The default settings have been restored.' => 'Le impostazioni predefinite sono state ripristinate.',
+                'These preferences are stored by webtrees and are retained when the module is upgraded.' => 'Queste preferenze sono memorizzate da webtrees e vengono mantenute quando il modulo viene aggiornato.',
+                'Collections and event display' => 'Raccolte e visualizzazione degli eventi',
+                'Available historical fact collections' => 'Raccolte di fatti storici disponibili',
+                'Only ticked collections are offered to visitors in the header selector and homepage block.' => 'Solo le raccolte selezionate sono disponibili per i visitatori nel selettore in cima alla pagina e nel blocco della pagina iniziale.',
+                'Site default collections' => 'Raccolte predefinite del sito',
+                'Used until a visitor makes their own selection. You can choose more than one.' => 'Utilizzate finché il visitatore non effettua una propria selezione. È possibile sceglierne più di una.',
+                'Maximum assumed lifespan' => 'Durata massima presunta della vita',
+                'Limits events when no death date is recorded.' => 'Limita gli eventi quando non è registrata una data di morte.',
+                'Optional features' => 'Funzioni facoltative',
+                'Show the History selector in the site header' => 'Mostra il selettore della storia in cima al sito',
+                'The homepage block remains available when this is turned off.' => 'Il blocco della pagina iniziale rimane disponibile quando questa opzione è disattivata.',
+                'Show ages on historical events' => 'Mostra le età negli eventi storici',
+                'Turn this off if another module already supplies historical-event ages.' => 'Disattivare questa opzione se un altro modulo fornisce già le età per gli eventi storici.',
+                'Custom CSV files' => 'File CSV personalizzati',
+                'To add your own historical fact collections, place CSV files in this persistent webtrees data folder. Files in this folder are not replaced when the module is upgraded.' => 'Per aggiungere raccolte di fatti storici personalizzate, inserire i file CSV in questa cartella dati persistente di webtrees. I file in questa cartella non vengono sostituiti quando il modulo viene aggiornato.',
+                'CSV format:' => 'Formato CSV:',
+                'No persistent data folder was detected on this installation.' => 'Non è stata rilevata alcuna cartella dati persistente in questa installazione.',
+                'Restore defaults' => 'Ripristina valori predefiniti',
+                'Save settings' => 'Salva impostazioni',
+                'Restore the Potts Historical Facts defaults?' => 'Ripristinare le impostazioni predefinite dei fatti storici Potts?',
+                'Historical fact collections' => 'Raccolte di fatti storici',
+                'Show historical facts from' => 'Mostra fatti storici da',
+                'Current selection: %s' => 'Selezione attuale: %s',
+                'This setting is independent of the website language. Where matching language-specific CSV files exist, the module will use the CSV that best matches the visitor\'s selected language.' => 'Questa impostazione è indipendente dalla lingua del sito. Se sono disponibili file CSV nelle lingue corrispondenti, il modulo utilizza quello più adatto alla lingua selezionata dal visitatore.',
+                'Apply' => 'Applica',
+                'Site default' => 'Impostazione predefinita del sito',
+                'Site default (%s)' => 'Impostazione predefinita del sito (%s)',
+                'Choose one or more historical fact collections.' => 'Scegliere una o più raccolte di fatti storici.',
+                'History' => 'Storia',
+                'Historical facts' => 'Fatti storici',
+                'Age' => 'Età',
+                'Source' => 'Fonte',
             ],
             'de' => [
                 'Potts Historical Facts' => 'Potts Historische Fakten',
@@ -578,6 +617,22 @@ return new class extends AbstractModule implements ModuleCustomInterface, Module
             const category = (title.textContent || '').trim();
             if (!cell || !category) {
                 return;
+            }
+            const historicalAge = cell.querySelector('.potts-history-event-age');
+            if (historicalAge) {
+                // Fact Ages recognises this class in every language, unlike its
+                // English-only Age: text check. Preserve our collection wording.
+                historicalAge.classList.add('potts-fact-age-badge');
+                cell.querySelectorAll('[data-potts-fact-age-badge="1"]').forEach(function (badge) {
+                    if (badge === historicalAge || badge.contains(historicalAge)) {
+                        return;
+                    }
+                    const slot = badge.parentElement;
+                    badge.remove();
+                    if (slot && slot.classList.contains('potts-fact-age-slot') && !slot.hasChildNodes()) {
+                        slot.remove();
+                    }
+                });
             }
             // Only repair the theme's generated heading for this historical fact.
             // Keep its icon, controls and separate age element intact.
@@ -2167,11 +2222,19 @@ HTML;
 
     private function ageHeading(string $history_language): string
     {
+        if (substr($history_language, 0, 2) === 'it') {
+            return 'Età';
+        }
+
         return substr($history_language, 0, 2) === 'nl' ? 'Leeftijd' : I18N::translate('Age');
     }
 
     private function sourceHeading(string $history_language): string
     {
+        if (substr($history_language, 0, 2) === 'it') {
+            return 'Fonte';
+        }
+
         return substr($history_language, 0, 2) === 'nl' ? 'Bron' : I18N::translate('Source');
     }
 
@@ -2197,6 +2260,20 @@ HTML;
 
     private function formatAgeForDisplay(int $years, int $months, int $days, bool $about, string $language): string
     {
+        if ($language === 'it') {
+            $prefix = $about ? 'circa ' : '';
+
+            if ($years > 0) {
+                return $prefix . $years . ' ' . ($years === 1 ? 'anno' : 'anni');
+            }
+
+            if ($months > 0) {
+                return $prefix . $months . ' ' . ($months === 1 ? 'mese' : 'mesi');
+            }
+
+            return $prefix . $days . ' ' . ($days === 1 ? 'giorno' : 'giorni');
+        }
+
         if ($language === 'nl') {
             if ($years > 0) {
                 return ($about ? 'ongeveer ' : '') . $years . ' jaar';

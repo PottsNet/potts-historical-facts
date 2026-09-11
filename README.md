@@ -107,3 +107,9 @@ GPL-3.0-or-later. See `LICENSE`.
 Report bugs and feature requests through GitHub Issues and include your webtrees version, PHP version, selected theme and screenshots where useful.
 
 Version 1.1.2 also keeps historical category headings separate from their age labels when Potts Modern builds its event title panels.
+
+## Italian localisation (1.1.3)
+
+Italian collections (`it_IT.csv`, or standard `it_IT_data_v1_0.csv`) use Età, Fonte, circa, anno/anni, mese/mesi and giorno/giorni. The module settings and History selector include Italian translations when the website language is Italian. Existing English Italy content (`en_IT.csv`) is retained unchanged; translated Italian event text must be supplied in a separate Italian CSV. Existing language-aware selection automatically uses an available `it_IT.csv` for Italian visitors selecting Italy. Standard Gramps files remain separate selections.
+
+Historical age labels are identified explicitly for Potts Fact Ages, preventing a second English age on Italian collections. Any already-added Fact Ages badge is removed only in a cell with a Historical Facts age label.

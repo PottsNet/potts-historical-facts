@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.1.2
+
+- Added Gregorian ISO dates (`YYYY`, `YYYY-MM`, `YYYY-MM-DD`) alongside existing GEDCOM dates. Month/day values are validated and converted to GEDCOM before event generation and Biography output.
+- Added separately selectable standard Gramps filenames such as `de_DE_data_v1_0.csv`, preserving the full collection identifier and persistent-file precedence.
+- Retained support for `#` comment lines. Metadata interpretation, `Today` and event IDs are not part of this change.
+- Fixed category headings absorbing or repeating the age in Potts Modern.
+- Included the live 1.1.1 Biography provider while preserving main's German collection, calendar annotations, data corrections, settings breadcrumbs and compact History button.
+
+## 1.1.1
+
+### Added
+
+- Added a public, read-only historical-row provider for Potts Biography.
+- The provider honours enabled collections, site defaults, visitor cookie choices, language-specific CSV selection and persistent custom data files.
+
+### Preserved
+
+- Standalone historical-event tabs, selectors, age labels and existing visitor preferences are unchanged.
+- Potts Biography remains optional and is not required to use this module.
+
 ## 1.1.0
 
 - Promoted Potts Historical Facts from beta/pre-release to a regular release.

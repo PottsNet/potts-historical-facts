@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.4
+
+- Corrected Julian calendar handling for historical age and lifespan comparisons, including Julian leap years.
+- Preserved the original displayed historical date and explicit calendar marker while using Gregorian-equivalent comparison dates internally.
+- Kept unmarked and ISO dates on their existing Gregorian interpretation; the module does not infer a calendar from country or region.
+- Retained the broader regional calendar-source audit as an open data-quality task rather than silently changing bundled historical dates.
+
 ## 1.1.3
 
 - Added Italian module settings and History-selector translations.

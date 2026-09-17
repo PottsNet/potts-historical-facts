@@ -7,12 +7,14 @@
 - Kept unmarked and ISO dates on their existing Gregorian interpretation; no calendar is inferred from country or region.
 - Includes the 1.1.3 Italian localisation improvements and earlier 1.1.1–1.1.2 provider, ISO-date and Gramps-compatible filename support already merged to main.
 
-### Release status
+### Validation
 
-Version 1.1.4 is currently development code on `main` and is **not yet a published GitHub release**. Until it is packaged, syntax-checked, live-tested and published, `latest-version.txt` must continue to advertise the most recent published release.
+- The Julian-calendar correction was tested on the maintainer's webtrees site before PR #23 was merged on 11 September 2026.
+- The 1.1.4 release workflow syntax-checks every PHP file with PHP 8.4 before publishing.
+- The generated ZIP is verified to contain `potts_historical_facts` as the module root and the 1.1.4 `module.php`.
 
-### Validation and upgrade
+### Upgrade
 
-Before publishing 1.1.4, package the module with `potts_historical_facts` as the module root, run PHP syntax checks against the supported PHP versions, test the release on webtrees 2.2.x, and confirm the historical-event/calendar behaviour on a live test installation. Persistent CSV files and settings must remain outside the packaged module and be retained across upgrade.
+Extract the release ZIP and replace the existing `modules_v4/potts_historical_facts` directory. Persistent custom CSV files stored in the webtrees data folder and settings stored by webtrees are outside the packaged module and are retained across upgrade.
 
 The broader regional calendar-source audit (#7) remains open and is not implied to be complete by the Julian calculation fix.

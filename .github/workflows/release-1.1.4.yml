@@ -1,0 +1,163 @@
+name: Release 1.1.4
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/release-1.1.4.yml
+      - RELEASE_NOTES.md
+      - module.php
+      - resources/**
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/release-1.1.4.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  VERSION: 1.1.4
+  MODULE_DIR: potts_historical_facts
+  ASSET_NAME: potts_historical_facts-1.1.4.zip
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out release commit
+        uses: actions/checkout@v4
+
+      - name: Set up PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+
+      - name: Check whether release already exists
+        id: existing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "v${VERSION}" >/dev/null 2>&1; then
+            echo "Release v${VERSION} already exists; nothing to publish."
+            echo 'exists=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'exists=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify release preconditions
+        if: steps.existing.outputs.exists != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq "private const CUSTOM_VERSION = '${VERSION}';" module.php
+          test -d resources
+          test -f README.md
+          test -f CHANGELOG.md
+          test -f LICENSE
+          test -f RELEASE_NOTES.md
+
+      - name: PHP 8.4 syntax check
+        if: steps.existing.outputs.exists != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            php -l "$file"
+          done < <(find . -type f -name '*.php' -not -path './.git/*' -print0)
+
+      - name: Build installable module ZIP
+        if: steps.existing.outputs.exists != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf staging dist
+          mkdir -p "staging/${MODULE_DIR}" dist
+
+          cp module.php README.md CHANGELOG.md LICENSE RELEASE_NOTES.md "staging/${MODULE_DIR}/"
+          cp -R resources "staging/${MODULE_DIR}/"
+
+          (
+            cd staging
+            zip -qr "../dist/${ASSET_NAME}" "${MODULE_DIR}"
+          )
+
+          unzip -t "dist/${ASSET_NAME}"
+          unzip -l "dist/${ASSET_NAME}"
+
+          if unzip -Z1 "dist/${ASSET_NAME}" | grep -Ev "^${MODULE_DIR}/"; then
+            echo 'Release ZIP contains files outside the required module root.'
+            exit 1
+          fi
+
+          unzip -Z1 "dist/${ASSET_NAME}" | grep -Fxq "${MODULE_DIR}/module.php"
+          unzip -Z1 "dist/${ASSET_NAME}" | grep -Fq "${MODULE_DIR}/resources/"
+          unzip -p "dist/${ASSET_NAME}" "${MODULE_DIR}/module.php" | grep -Fq "private const CUSTOM_VERSION = '${VERSION}';"
+
+          sha256sum "dist/${ASSET_NAME}" | tee "dist/${ASSET_NAME}.sha256"
+
+      - name: Prepare release notes
+        if: steps.existing.outputs.exists != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > dist/release-notes.md <<'EOF'
+          ## Potts Historical Facts 1.1.4
+
+          This release corrects Julian-calendar handling for historical age and lifespan comparisons.
+
+          ### Changes
+          - Correctly handles dates explicitly marked as Julian, including Julian leap years.
+          - Preserves the original displayed date and calendar marker while using Gregorian-equivalent dates internally for comparisons.
+          - Keeps unmarked and ISO dates on their existing Gregorian interpretation; no calendar is inferred from country or region.
+          - Includes the 1.1.3 Italian localisation improvements and the earlier 1.1.1–1.1.2 provider, ISO-date and Gramps-compatible filename support already merged to main.
+
+          ### Validation
+          - The Julian-calendar correction was tested on the maintainer's webtrees site before PR #23 was merged on 11 September 2026.
+          - This release workflow syntax-checks every PHP file with PHP 8.4 before publishing.
+          - The generated archive is verified to have `potts_historical_facts` as its single module root and to contain the 1.1.4 `module.php`.
+
+          ### Upgrade
+          Extract the attached ZIP and replace the existing `modules_v4/potts_historical_facts` module directory. Persistent custom CSV files and webtrees-stored settings remain outside the packaged module and are retained across upgrade.
+
+          The broader regional calendar-source audit in issue #7 remains open; this release does not claim that every bundled historical date has been independently audited.
+          EOF
+
+      - name: Upload validated package for PR review
+        if: github.event_name == 'pull_request' && steps.existing.outputs.exists != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: potts-historical-facts-1.1.4-validation
+          path: |
+            dist/${{ env.ASSET_NAME }}
+            dist/${{ env.ASSET_NAME }}.sha256
+          if-no-files-found: error
+
+      - name: Publish GitHub release
+        if: github.event_name != 'pull_request' && steps.existing.outputs.exists != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release create "v${VERSION}" \
+            "dist/${ASSET_NAME}" \
+            "dist/${ASSET_NAME}.sha256" \
+            --target "$GITHUB_SHA" \
+            --title "Potts Historical Facts v${VERSION}" \
+            --notes-file dist/release-notes.md
+
+      - name: Verify published release
+        if: github.event_name != 'pull_request' && steps.existing.outputs.exists != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release view "v${VERSION}" --json tagName,isDraft,isPrerelease,publishedAt,assets,url
+          gh release view "v${VERSION}" --json assets --jq '.assets[].name' | grep -Fxq "${ASSET_NAME}"
+          gh release view "v${VERSION}" --json assets --jq '.assets[].name' | grep -Fxq "${ASSET_NAME}.sha256"
